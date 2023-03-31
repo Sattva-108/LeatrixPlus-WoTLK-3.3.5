@@ -89,9 +89,7 @@ Hide zone text
 Resize quest text
 
 ## Interface
-Enhance tooltip
-
-Enhance dressup
+Enhance tooltip and Move Tooltip
 
 Show volume slider
 
