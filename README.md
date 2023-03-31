@@ -117,4 +117,4 @@ Remove transforms
 
 And more functions!
 
-#### `Changelog`, `To Do List` and `known bugs` can be viewed in `Changelog and Notes.txt` inside addon folder.
+#### `Changelog`, `To Do List` and `known bugs` can be viewed in [Changelog and Notes.txt](https://github.com/Sattva-108/LeatrixPlus-WoTLK-3.3.5/blob/main/Leatrix_Plus/Changelog%20and%20Notes.txt) inside addon folder.
