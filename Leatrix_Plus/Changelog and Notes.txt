@@ -16,7 +16,17 @@ Addon is ready to release after backport.
 
 	TODO List:
 
-		Improve Quest Accept conditions (aka skip welcome window)
+		Improve Quest Accept conditions (aka skip welcome window and block shared aka escort quests)
 		Frame mover
 		Square minimap
-
+		Auto skip Gossip
+		Restore Chat Messages history after relog
+		Hide portrait numbers
+		Hide keybind text
+		Hide macro text
+		Resize mail text
+		Train All Button
+		Ready Timer for RDF/BG
+		Copy chat links/Link to Wowhead for chose quest in Quest Log
+		Faster auto loot
+		Remove transforms (Jack-o'-Lantern, Hallowed Wand, Witch, Turkey and Spraybot transformations? etc.)
