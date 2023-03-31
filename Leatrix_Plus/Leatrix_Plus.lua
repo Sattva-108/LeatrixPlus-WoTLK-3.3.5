@@ -1,6 +1,6 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 4.3.18
--- 	Last updated: 24th August 2012
+-- 	Leatrix Plus 3.3.5
+-- 	Last updated: 30th March 2023
 ----------------------------------------------------------------------
 
 ----------------------------------------------------------------------
@@ -163,6 +163,29 @@
 			LeaPlusLC:LockItem(LeaPlusCB["NoAutoResInCombat"],false)
 		end
 
+		----------------------------------------------------------------------
+		--	Automatic summon
+		----------------------------------------------------------------------
+
+		if LeaPlusLC["AutoAcceptSummon"] == "On" then
+			LpEvt:RegisterEvent("CONFIRM_SUMMON");
+		else
+			LpEvt:UnregisterEvent("CONFIRM_SUMMON");
+		end
+
+
+		----------------------------------------------------------------------
+		--	Automatic guild decline
+		----------------------------------------------------------------------
+
+		if LeaPlusLC["BlockGuild"] == "On" then
+			LpEvt:RegisterEvent("GUILD_INVITE_REQUEST");
+		else
+			LpEvt:UnregisterEvent("GUILD_INVITE_REQUEST");
+		end
+
+
+
 		-- Error frame quest lockout
 		if LeaPlusLC["HideErrorFrameText"] == "Off" then
 			LeaPlusLC:LockItem(LeaPlusCB["ShowQuestUpdates"],true)
@@ -196,10 +219,10 @@
 		-- Trade and guild block lockout
 		if (LeaPlusLC["ManageTradeGuild"] ~= LeaPlusDB["ManageTradeGuild"]) or LeaPlusLC["ManageTradeGuild"] == "Off" then
 			LeaPlusLC:LockItem(LeaPlusCB["NoTradeRequests"],true)
-			LeaPlusLC:LockItem(LeaPlusCB["NoGuildInvites"],true)
+
 		else
 			LeaPlusLC:LockItem(LeaPlusCB["NoTradeRequests"],false)
-			LeaPlusLC:LockItem(LeaPlusCB["NoGuildInvites"],false)
+
 		end
 
 	end
@@ -423,11 +446,7 @@
 			else
 				InterfaceOptionsControlsPanelBlockTrades:SetValue("0");
 			end
-			if LeaPlusLC["NoGuildInvites"] == "On" then
-				InterfaceOptionsControlsPanelBlockGuildInvites:SetValue("1");
-			else
-				InterfaceOptionsControlsPanelBlockGuildInvites:SetValue("0");
-			end
+
 		end
 	end
 
@@ -507,7 +526,9 @@
 
 		if not LeaPlusDB["ManageTradeGuild"] 		then LeaPlusLC["ManageTradeGuild"] 		= "Off"	else LeaPlusLC["ManageTradeGuild"]		= LeaPlusDB["ManageTradeGuild"] 	end 
 		if not LeaPlusDB["NoTradeRequests"]			then LeaPlusLC["NoTradeRequests"]		= "Off"	else LeaPlusLC["NoTradeRequests"]		= LeaPlusDB["NoTradeRequests"]		end 
-		if not LeaPlusDB["NoGuildInvites"]			then LeaPlusLC["NoGuildInvites"]		= "Off"	else LeaPlusLC["NoGuildInvites"]		= LeaPlusDB["NoGuildInvites"]		end 
+		-- if not LeaPlusDB["NoGuildInvites"]			then LeaPlusLC["NoGuildInvites"]		= "Off"	else LeaPlusLC["NoGuildInvites"]		= LeaPlusDB["NoGuildInvites"]		end 
+		if not LeaPlusDB["AutoAcceptSummon"] 		then LeaPlusLC["AutoAcceptSummon"]		= "Off"	else LeaPlusLC["AutoAcceptSummon"]		= LeaPlusDB["AutoAcceptSummon"] 	end 
+		if not LeaPlusDB["BlockGuild"] 				then LeaPlusLC["BlockGuild"]			= "Off"	else LeaPlusLC["BlockGuild"]			= LeaPlusDB["BlockGuild"] 	end 
 
 		-- Interaction
 		if not LeaPlusDB["ShowQuestLevels"]			then LeaPlusLC["ShowQuestLevels"]		= "Off"	else LeaPlusLC["ShowQuestLevels"]		= LeaPlusDB["ShowQuestLevels"]		end 
@@ -594,7 +615,7 @@
 
 		if not LeaPlusDB["AhExtras"] 				then LeaPlusLC["AhExtras"]				= "Off"	else LeaPlusLC["AhExtras"]				= LeaPlusDB["AhExtras"]				end 
 		if not LeaPlusDB["AhBuyoutOnly"] 			then LeaPlusLC["AhBuyoutOnly"]			= "Off"	else LeaPlusLC["AhBuyoutOnly"]			= LeaPlusDB["AhBuyoutOnly"]			end 
-		if not LeaPlusDB["AhGoldOnly"] 				then LeaPlusLC["AhGoldOnly"]			= "Off"	else LeaPlusLC["AhGoldOnly"]			= LeaPlusDB["AhGoldOnly"]			end 
+		-- if not LeaPlusDB["AhGoldOnly"] 				then LeaPlusLC["AhGoldOnly"]			= "Off"	else LeaPlusLC["AhGoldOnly"]			= LeaPlusDB["AhGoldOnly"]			end 
 		if not LeaPlusDB["AhDuration"] 				then 											else LeaPlusLC["AhDuration"]			= LeaPlusDB["AhDuration"]			end 
 
 		if not LeaPlusDB["NoDeathEffect"]			then LeaPlusLC["NoDeathEffect"]			= "Off"	else LeaPlusLC["NoDeathEffect"]			= LeaPlusDB["NoDeathEffect"] 		end 
@@ -643,13 +664,15 @@
 		LeaPlusDB["AutoReleaseInBG"] 		= LeaPlusLC["AutoReleaseInBG"]
 		LeaPlusDB["AutoAcceptRes"] 			= LeaPlusLC["AutoAcceptRes"]
 		LeaPlusDB["NoAutoResInCombat"]		= LeaPlusLC["NoAutoResInCombat"]
+		LeaPlusDB["AutoAcceptSummon"] 		= LeaPlusLC["AutoAcceptSummon"]
+		LeaPlusDB["BlockGuild"] 			= LeaPlusLC["BlockGuild"]
 
 		LeaPlusDB["NoDuelRequests"] 		= LeaPlusLC["NoDuelRequests"]
 		LeaPlusDB["NoPartyInvites"]			= LeaPlusLC["NoPartyInvites"]
 
 		LeaPlusDB["ManageTradeGuild"] 		= LeaPlusLC["ManageTradeGuild"]
 		LeaPlusDB["NoTradeRequests"]		= LeaPlusLC["NoTradeRequests"]
-		LeaPlusDB["NoGuildInvites"]			= LeaPlusLC["NoGuildInvites"]
+		-- LeaPlusDB["NoGuildInvites"]			= LeaPlusLC["NoGuildInvites"]
 
 		-- Interaction
 		LeaPlusDB["ShowQuestLevels"]		= LeaPlusLC["ShowQuestLevels"]
@@ -948,7 +971,7 @@
 		QuestInfoDescriptionText.SetAlphaGradient = function() return end
 
 		-- Hide character controls
-		if LeaPlusLC["NoCharControls"] == "On" then
+		if LeaPlusLC["NoCharControls"] == "on" then
 			CharacterModelFrameControlFrame.Show = CharacterModelFrameControlFrame.Hide;
 			DressUpModelControlFrame.Show = DressUpModelControlFrame.Hide;
 			SideDressUpModelControlFrame.Show = DressUpModelControlFrame.Hide;
@@ -1435,7 +1458,7 @@
 			LeaPlusCB["ShowHelmBox"] = CreateFrame('CheckButton', nil, CharacterModelFrame, "OptionsCheckButtonTemplate")
 			LeaPlusCB["ShowHelmBox"]:SetHitRectInsets(0, 0, 0, 0);
 			LeaPlusCB["ShowHelmBox"]:SetSize(24, 24)
-			LeaPlusCB["ShowHelmBox"]:SetPoint("TOPLEFT", 46, -276)
+			LeaPlusCB["ShowHelmBox"]:SetPoint("TOPLEFT", 5, -165)
 
 			LeaPlusCB["ShowHelmBox.f"] = LeaPlusCB["ShowHelmBox"]:CreateFontString(nil, 'OVERLAY', "GameFontNormal")
 			LeaPlusCB["ShowHelmBox.f"]:SetPoint("LEFT", 24, 0)
@@ -1445,7 +1468,7 @@
 			LeaPlusCB["ShowCloakBox"] = CreateFrame('CheckButton', nil, CharacterModelFrame, "OptionsCheckButtonTemplate")
 			LeaPlusCB["ShowCloakBox"]:SetHitRectInsets(0, 0, 0, 0);
 			LeaPlusCB["ShowCloakBox"]:SetSize(24, 24)
-			LeaPlusCB["ShowCloakBox"]:SetPoint("TOPLEFT", 116, -276)
+			LeaPlusCB["ShowCloakBox"]:SetPoint("TOPLEFT", 75, -165)
 
 			LeaPlusCB["ShowCloakBox.f"] = LeaPlusCB["ShowCloakBox"]:CreateFontString(nil, 'OVERLAY', "GameFontNormal")
 			LeaPlusCB["ShowCloakBox.f"]:SetPoint("LEFT", 24, 0)
@@ -1503,7 +1526,7 @@
 
 		-- Honor shown in tooltip
 		if LeaPlusLC["ShowHonorStat"] == "On" then
-			PVPFrameCurrency:HookScript("OnEnter", function()
+			PVPFrameHonor:HookScript("OnEnter", function()
 				GameTooltip:AddLine("Lifetime Honorable Kills: |cffffffff" .. GetStatistic(588))
 				GameTooltip:Show();
 			end)
@@ -1530,18 +1553,22 @@
 			LeaPlusCB["MinimapButton"]:SetSize(32,32)
 			LeaPlusCB["MinimapButton"]:SetMovable(true)
 			LeaPlusCB["MinimapButton"]:SetFrameStrata("MEDIUM")
-			LeaPlusCB["MinimapButton"]:SetNormalTexture("Interface/COMMON/Indicator-Green.png")
-			LeaPlusCB["MinimapButton"]:SetPushedTexture("Interface/COMMON/Indicator-Green.png")
-			LeaPlusCB["MinimapButton"]:SetHighlightTexture("Interface/COMMON/Indicator-Green.png")
+			LeaPlusCB["MinimapButton"]:SetNormalTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Green.png")
+			LeaPlusCB["MinimapButton"]:SetPushedTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Red.png")
+			LeaPlusCB["MinimapButton"]:SetHighlightTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Green.png")
 			LeaPlusCB["MinimapButton"]:RegisterForClicks("AnyUp") 
 
 			-- Add Tooltip
 			LeaPlusCB["MinimapButton"]:SetScript("OnEnter", function(self)
-				if LeaPlusLC["PlusShowTips"] == "On" then
-					GameTooltip:SetOwner(self, "ANCHOR_TOP")
-					GameTooltip:SetText("Leatrix Plus", nil, nil, nil, nil, true)
-				end
-			end)
+    if LeaPlusLC["PlusShowTips"] == "On" then
+        GameTooltip:SetOwner(self, "ANCHOR_TOP")
+        GameTooltip:SetText("Leatrix Plus", nil, nil, nil, nil, true)
+        GameTooltip:AddLine("|cffeda55fClick|r to open Leatrix Plus options.", 1, 1, 1, true)
+        GameTooltip:AddLine("|cffeda55fShift-Click|r to reload the user interface.", 1, 1, 1, true)
+        -- GameTooltip:AddLine("Line 3: More text", 1, 1, 1, true)
+        GameTooltip:Show()
+    end
+end)
 
 			LeaPlusCB["MinimapButton"]:SetScript("OnLeave", function(self)
 				GameTooltip:Hide()
@@ -1575,7 +1602,8 @@
 
 				if arg1 == "LeftButton" then
 					if IsShiftKeyDown() then
-						Sound_ToggleMusic();
+						ReloadUI();
+						--Sound_ToggleMusic();
 						if GetCVar("Sound_EnableMusic") == "1" then
 							LeaPlusLC:Print("Music enabled.")
 						else
@@ -1596,32 +1624,56 @@
 					end
 				end
 				if arg1 == "RightButton" then
-					if LeaPlusLC["HideErrorFrameText"] == "On" then
-						if LeaPlusLC["ShowErrorsFlag"] == 1 then 
-							LeaPlusLC["ShowErrorsFlag"] = 0
-							LeaPlusCB["MinimapButton"]:SetNormalTexture("Interface/COMMON/Indicator-Red.png")
-							LeaPlusCB["MinimapButton"]:SetPushedTexture("Interface/COMMON/Indicator-Red.png")
-							LeaPlusCB["MinimapButton"]:SetHighlightTexture("Interface/COMMON/Indicator-Red.png")
+					if IsShiftKeyDown() then
+						ReloadUI();
+						--Sound_ToggleMusic();
+						if GetCVar("Sound_EnableMusic") == "1" then
+							LeaPlusLC:Print("Music enabled.")
 						else
-							LeaPlusLC["ShowErrorsFlag"] = 1
-							LeaPlusCB["MinimapButton"]:SetNormalTexture("Interface/COMMON/Indicator-Green.png")
-							LeaPlusCB["MinimapButton"]:SetPushedTexture("Interface/COMMON/Indicator-Green.png")
-							LeaPlusCB["MinimapButton"]:SetHighlightTexture("Interface/COMMON/Indicator-Green.png")
+							LeaPlusLC:Print("Music disabled.")
 						end
 					else
-						LeaPlusLC:Print("The option to hide error messages needs to be enabled first.")
-					end
-				end
-				if arg1 == "MiddleButton" then
-					if (IsAddOnLoaded("Recount")) then
-						if Recount_MainWindow:IsShown() then
-							Recount.MainWindow:Hide();
+						if LeaPlusLC["PageF"]:IsShown() then
+							LeaPlusLC:HideFrames();
 						else
-							Recount.MainWindow:Show();
-							Recount:RefreshMainWindow();
+							LeaPlusLC:HideFrames();
+							LeaPlusLC["PageF"]:Show();
+						end
+						if LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]] and LeaPlusLC["OpenPlusAtHome"] == "Off" then
+							 LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]]:Show()
+						else
+							LeaPlusLC["Page0"]:Show();
 						end
 					end
 				end
+
+				-- if arg1 == "RightButton" then
+				-- 	if LeaPlusLC["HideErrorFrameText"] == "On" then
+				-- 		if LeaPlusLC["ShowErrorsFlag"] == 1 then 
+				-- 			LeaPlusLC["ShowErrorsFlag"] = 0
+				-- 			LeaPlusCB["MinimapButton"]:SetNormalTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Red.png")
+				-- 			LeaPlusCB["MinimapButton"]:SetPushedTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Red.png")
+				-- 			LeaPlusCB["MinimapButton"]:SetHighlightTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Red.png")
+				-- 		else
+				-- 			LeaPlusLC["ShowErrorsFlag"] = 1
+				-- 			LeaPlusCB["MinimapButton"]:SetNormalTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Green.png")
+				-- 			LeaPlusCB["MinimapButton"]:SetPushedTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Green.png")
+				-- 			LeaPlusCB["MinimapButton"]:SetHighlightTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Green.png")
+				-- 		end
+				-- 	else
+				-- 		LeaPlusLC:Print("The option to hide error messages needs to be enabled first.")
+				-- 	end
+				-- end
+				-- if arg1 == "MiddleButton" then
+				-- 	if (IsAddOnLoaded("Recount")) then
+				-- 		if Recount_MainWindow:IsShown() then
+				-- 			Recount.MainWindow:Hide();
+				-- 		else
+				-- 			Recount.MainWindow:Show();
+				-- 			Recount:RefreshMainWindow();
+				-- 		end
+				-- 	end
+				-- end
 			end)
 
 			-- Ensure position is a valid number
@@ -1999,9 +2051,9 @@
 		if LeaPlusLC["ShowVolume"] == "On" then
 			LeaPlusLC["LeaPlusMaxVol"] = tonumber(GetCVar("Sound_MasterVolume"));
 			if LeaPlusLC["ShowVanityButtons"] == "On" then
-				LeaPlusLC:MakeSL(CharacterModelFrame, "LeaPlusMaxVol", "",	0, 1, 0.05, 48, -260, "%.2f")
+				LeaPlusLC:MakeSL(CharacterModelFrame, "LeaPlusMaxVol", "",	0, 1, 0.05, 10, -145, "%.2f")
 			else
-				LeaPlusLC:MakeSL(CharacterModelFrame, "LeaPlusMaxVol", "",	0, 1, 0.05, 48, -276, "%.2f")
+				LeaPlusLC:MakeSL(CharacterModelFrame, "LeaPlusMaxVol", "",	0, 1, 0.05, 10, -165, "%.2f")
 			end
 			LeaPlusCB["LeaPlusMaxVol"]:SetWidth(84);
 
@@ -2061,23 +2113,23 @@
 				end)
 			end
 
-			-- Set whisper mode to inline and lock Blizzard options
-			SetCVar("whisperMode", "inline")
-			InterfaceOptionsSocialPanelWhisperModeButton:Disable()
-			InterfaceOptionsSocialPanelWhisperModeText:SetAlpha(0.0)
-			InterfaceOptionsSocialPanelWhisperMode.tooltip = "Whispers are set to inline and are controlled by Leatrix Plus."
+			-- -- Set whisper mode to inline and lock Blizzard options
+			-- SetCVar("whisperMode", "inline")
+			-- InterfaceOptionsSocialPanelWhisperModeButton:Disable()
+			-- InterfaceOptionsSocialPanelWhisperModeText:SetAlpha(0.0)
+			-- InterfaceOptionsSocialPanelWhisperMode.tooltip = "Whispers are set to inline and are controlled by Leatrix Plus."
 
-			-- Set Real ID mode to inline and lock Blizzard options
-			SetCVar("bnWhisperMode", "inline")
-			InterfaceOptionsSocialPanelBnWhisperModeButton:Disable()
-			InterfaceOptionsSocialPanelBnWhisperModeText:SetAlpha(0.0)
-			InterfaceOptionsSocialPanelBnWhisperMode.tooltip = "Real ID whispers are set to inline and are controlled by Leatrix Plus."
+			-- -- Set Real ID mode to inline and lock Blizzard options
+			-- SetCVar("bnWhisperMode", "inline")
+			-- InterfaceOptionsSocialPanelBnWhisperModeButton:Disable()
+			-- InterfaceOptionsSocialPanelBnWhisperModeText:SetAlpha(0.0)
+			-- InterfaceOptionsSocialPanelBnWhisperMode.tooltip = "Real ID whispers are set to inline and are controlled by Leatrix Plus."
 
-			-- Set Real ID conversation mode and lock Blizzard options
-			SetCVar("conversationMode", "inline")
-			InterfaceOptionsSocialPanelConversationModeButton:Disable()
-			InterfaceOptionsSocialPanelConversationModeText:SetAlpha(0.0)
-			InterfaceOptionsSocialPanelConversationMode.tooltip = "Real ID conversation mode is set to inline and are controlled by Leatrix Plus."
+			-- -- Set Real ID conversation mode and lock Blizzard options
+			-- SetCVar("conversationMode", "inline")
+			-- InterfaceOptionsSocialPanelConversationModeButton:Disable()
+			-- InterfaceOptionsSocialPanelConversationModeText:SetAlpha(0.0)
+			-- InterfaceOptionsSocialPanelConversationMode.tooltip = "Real ID conversation mode is set to inline and are controlled by Leatrix Plus."
 
 			-- Hide chat window buttons
 			for i = 1, NUM_CHAT_WINDOWS, 1 do
@@ -2194,12 +2246,12 @@
 		-- Frame Movement
 		if LeaPlusLC["FrmEnabled"] == "On" then
 
-			-- Set reference sizes for stubborn frames
-			PlayerPowerBarAlt:SetSize(256, 64); 
+			-- -- Set reference sizes for stubborn frames
+			-- PlayerPowerBarAlt:SetSize(256, 64); 
 
-			-- Lock the player and target frames
-			PlayerFrame_SetLocked(true)
-			TargetFrame_SetLocked(true)
+			-- -- Lock the player and target frames
+			-- PlayerFrame_SetLocked(true)
+			-- TargetFrame_SetLocked(true)
 
 			-- Remove integrated movement functions to avoid conflicts
 			PlayerFrame_ResetUserPlacedPosition = function() LeaPlusLC:Print("Please use Leatrix Plus to reset the player frame.") end
@@ -2210,22 +2262,22 @@
 			-- Control frame locks (prevent Blizzard from moving frames)
 			local DurabilityFramePoint 					= DurabilityFrame.SetPoint
 			local MirrorTimer1Point 					= MirrorTimer1.SetPoint
-			local GhostFramePoint 						= GhostFrame.SetPoint
-			local PlayerPowerBarAltPoint 				= PlayerPowerBarAlt.SetPoint
+			-- local GhostFramePoint 						= GhostFrame.SetPoint
+			-- local PlayerPowerBarAltPoint 				= PlayerPowerBarAlt.SetPoint
 
 			function LeaPlusLC:LeaPlusFrameLock(status)
 				if status then
 					-- Prevent frames from being moved
 					DurabilityFrame.SetPoint 			= function() end
 					MirrorTimer1.SetPoint 				= function() end
-					GhostFrame.SetPoint 				= function() end
-					PlayerPowerBarAlt.SetPoint 			= function() end
+					-- GhostFrame.SetPoint 				= function() end
+					-- PlayerPowerBarAlt.SetPoint 			= function() end
 				else 
 					-- Allow frames to be moved
 					DurabilityFrame.SetPoint 			= DurabilityFramePoint
 					MirrorTimer1.SetPoint 				= MirrorTimer1Point
-					GhostFrame.SetPoint 				= GhostFramePoint
-					PlayerPowerBarAlt.SetPoint 			= PlayerPowerBarAltPoint
+					-- GhostFrame.SetPoint 				= GhostFramePoint
+					-- PlayerPowerBarAlt.SetPoint 			= PlayerPowerBarAltPoint
 				end
 			end
 
@@ -2242,10 +2294,10 @@
 			DragPlayerFrame = PlayerFrame,
 			DragTargetFrame = TargetFrame,
 			DragWorldStateAlwaysUpFrame = WorldStateAlwaysUpFrame,
-			DragGhostFrame = GhostFrame,
+			-- DragGhostFrame = GhostFrame,
 			DragMirrorTimer1 = MirrorTimer1,
-			DragDurabilityFrame = DurabilityFrame,
-			DragPlayerPowerBarAlt = PlayerPowerBarAlt}
+			DragDurabilityFrame = DurabilityFrame,}
+			-- DragPlayerPowerBarAlt = PlayerPowerBarAlt
 
 			-- Set cached status
 			local function LeaPlusFramesSaveCache(frame)
@@ -2270,10 +2322,10 @@
 				LeaFramesSetPos(PlayerFrame				, "TOPLEFT"	, UIParent, "TOPLEFT"	, -19, -4)
 				LeaFramesSetPos(TargetFrame				, "TOPLEFT"	, UIParent, "TOPLEFT"	, 250, -4)
 				LeaFramesSetPos(WorldStateAlwaysUpFrame	, "TOP"		, UIParent, "TOP"		, -5, -15)
-				LeaFramesSetPos(GhostFrame				, "TOP"		, UIParent, "TOP"		, -5, -29)
+				-- LeaFramesSetPos(GhostFrame				, "TOP"		, UIParent, "TOP"		, -5, -29)
 				LeaFramesSetPos(MirrorTimer1			, "TOP"		, UIParent, "TOP"		, -5, -96)
 				LeaFramesSetPos(DurabilityFrame			, "TOPRIGHT", UIParent, "TOPRIGHT"	, -20, -192)
-				LeaFramesSetPos(PlayerPowerBarAlt		, "BOTTOM"	, UIParent, "BOTTOM"	, 0, 95)
+				-- LeaFramesSetPos(PlayerPowerBarAlt		, "BOTTOM"	, UIParent, "BOTTOM"	, 0, 95)
 				LeaPlusLC:LeaPlusFrameLock(true)
 			end
 
@@ -2339,11 +2391,11 @@
 			LeaPlusFramesCB("ChkPlayerFrame"			, 10, -10, 	"DragPlayerFrame"				, "Player"		, "Player (including pet)")
 			LeaPlusFramesCB("ChkTargetFrame"			, 10, -30, 	"DragTargetFrame"				, "Target"		, "Target")
 			LeaPlusFramesCB("ChkWorldStateAlwaysUpFrame", 10, -50, 	"DragWorldStateAlwaysUpFrame"	, "World"		, "World state PvP")
-			LeaPlusFramesCB("ChkGhostFrame"				, 10, -70,	"DragGhostFrame"				, "Ghost"		, "Ghost (return to spirit healer)")
+			-- LeaPlusFramesCB("ChkGhostFrame"				, 10, -70,	"DragGhostFrame"				, "Ghost"		, "Ghost (return to spirit healer)")
 
 			LeaPlusFramesCB("ChkMirrorTimer1"			, 110, -10,	"DragMirrorTimer1"				, "Timer"		, "Timer bar")
 			LeaPlusFramesCB("ChkDurabilityFrame"		, 110, -30,	"DragDurabilityFrame"			, "Durability"	, "Durability")
-			LeaPlusFramesCB("ChkPlayerPowerBarAlt"		, 110, -50,	"DragPlayerPowerBarAlt"			, "Power"		, "Alternative power bar")
+			-- LeaPlusFramesCB("ChkPlayerPowerBarAlt"		, 110, -50,	"DragPlayerPowerBarAlt"			, "Power"		, "Alternative power bar")
 
 			-- Create drag frames
 			local function LeaPlusMakeDrag(dragframe,realframe)
@@ -2444,11 +2496,11 @@
 						LeaPlusLC:LeaPlusFrameLock(false)
 						LeaFramesSetPos(PlayerFrame				, "TOPLEFT"	, UIParent, "TOPLEFT"	,	"-35"	, "-14")
 						LeaFramesSetPos(TargetFrame				, "TOPLEFT"	, UIParent, "TOPLEFT"	,	"192"	, "-14")
-						LeaFramesSetPos(GhostFrame				, "CENTER"	, UIParent, "CENTER"	,	"3"		, "-142")
+						-- LeaFramesSetPos(GhostFrame				, "CENTER"	, UIParent, "CENTER"	,	"3"		, "-142")
 						LeaFramesSetPos(DurabilityFrame			, "TOP"		, UIParent, "TOP"		,	"212"	, "-138")
 						LeaFramesSetPos(WorldStateAlwaysUpFrame	, "TOP"		, UIParent, "TOP"		,	"-40"	, "-530")
 						LeaFramesSetPos(MirrorTimer1			, "TOP"		, UIParent, "TOP"		,	"0"		, "-120")
-						LeaFramesSetPos(PlayerPowerBarAlt		, "BOTTOM"	, UIParent, "BOTTOM"	,	"0"		, "95")
+						-- LeaFramesSetPos(PlayerPowerBarAlt		, "BOTTOM"	, UIParent, "BOTTOM"	,	"0"		, "95")
 					end
 					for k,v in pairs(LeaPlusLC["FrameTable"]) do
 						v.p, _, v.r, v.x, v.y = _G[v:GetName()]:GetPoint()
@@ -2479,8 +2531,8 @@
 					-- Set specific scaled sizes for stubborn frames
 					LeaPlusLC["DragWorldStateAlwaysUpFrame"]:SetSize(300 * LeaPlusLC["gscale"], 50 * LeaPlusLC["gscale"]);
 					LeaPlusLC["DragMirrorTimer1"]:SetSize(206 * LeaPlusLC["gscale"], 50 * LeaPlusLC["gscale"]);
-					LeaPlusLC["DragGhostFrame"]:SetSize(130 * LeaPlusLC["gscale"], 46 * LeaPlusLC["gscale"]);
-					LeaPlusLC["DragPlayerPowerBarAlt"]:SetSize(256 * LeaPlusLC["gscale"], 64 * LeaPlusLC["gscale"]);
+					-- LeaPlusLC["DragGhostFrame"]:SetSize(130 * LeaPlusLC["gscale"], 46 * LeaPlusLC["gscale"]);
+					-- LeaPlusLC["DragPlayerPowerBarAlt"]:SetSize(256 * LeaPlusLC["gscale"], 64 * LeaPlusLC["gscale"]);
 				end
 			end)
 			
@@ -2539,11 +2591,10 @@
 		if LeaPlusLC["ManageTradeGuild"] == "On" then
 			LeaPlusLC:TradeGuild();
 			InterfaceOptionsControlsPanelBlockTrades:Disable();
-			InterfaceOptionsControlsPanelBlockGuildInvites:Disable();
+
 			_G[InterfaceOptionsControlsPanelBlockTrades:GetName() .. 'Text']:SetText("Trade blocking is controlled by Leatrix Plus.")
 			_G[InterfaceOptionsControlsPanelBlockTrades:GetName() .. 'Text']:SetAlpha(0.6)
-			_G[InterfaceOptionsControlsPanelBlockGuildInvites:GetName() .. 'Text']:SetText("Guild invitation blocking is controlled by Leatrix Plus.")
-			_G[InterfaceOptionsControlsPanelBlockGuildInvites:GetName() .. 'Text']:SetAlpha(0.3)
+
 		end
 
 		-- Lock class color checkboxes in Blizzard options if manage class colors is enabled
@@ -2699,54 +2750,54 @@
 					end
 				end)
 
-				-- Create gold only checkbox (typing in silver and copper is so boring most of the time)
-				LeaPlusCB["AhGoldOnly"] = CreateFrame('CheckButton', nil, AuctionFrameAuctions, "OptionsCheckButtonTemplate")
-				LeaPlusCB["AhGoldOnly"]:SetFrameStrata("HIGH")
-				LeaPlusCB["AhGoldOnly"]:SetHitRectInsets(0, 0, 0, 0);
-				LeaPlusCB["AhGoldOnly"]:SetSize(20, 20)
-				LeaPlusCB["AhGoldOnly"]:SetPoint("BOTTOMLEFT", 320, 16)
+				-- -- Create gold only checkbox (typing in silver and copper is so boring most of the time)
+				-- LeaPlusCB["AhGoldOnly"] = CreateFrame('CheckButton', nil, AuctionFrameAuctions, "OptionsCheckButtonTemplate")
+				-- LeaPlusCB["AhGoldOnly"]:SetFrameStrata("HIGH")
+				-- LeaPlusCB["AhGoldOnly"]:SetHitRectInsets(0, 0, 0, 0);
+				-- LeaPlusCB["AhGoldOnly"]:SetSize(20, 20)
+				-- LeaPlusCB["AhGoldOnly"]:SetPoint("BOTTOMLEFT", 320, 16)
 
-				LeaPlusCB["AhGoldOnly.f"] = LeaPlusCB["AhGoldOnly"]:CreateFontString(nil, 'OVERLAY', "GameFontNormal")
-				LeaPlusCB["AhGoldOnly.f"]:SetPoint("LEFT", 20, 0)
-				LeaPlusCB["AhGoldOnly.f"]:SetText("Gold Only")
-				LeaPlusCB["AhGoldOnly.f"]:Show();
+				-- LeaPlusCB["AhGoldOnly.f"] = LeaPlusCB["AhGoldOnly"]:CreateFontString(nil, 'OVERLAY', "GameFontNormal")
+				-- LeaPlusCB["AhGoldOnly.f"]:SetPoint("LEFT", 20, 0)
+				-- LeaPlusCB["AhGoldOnly.f"]:SetText("Gold Only")
+				-- LeaPlusCB["AhGoldOnly.f"]:Show();
 
-				local function LockPrice()
-					if LeaPlusCB["AhGoldOnly"]:GetChecked() == 1 then
-						StartPriceCopper:SetText("99")
-						StartPriceCopper:Disable();
-						StartPriceSilver:SetText("99")
-						StartPriceSilver:Disable();
-						BuyoutPriceCopper:SetText("99")
-						BuyoutPriceCopper:Disable();
-						BuyoutPriceSilver:SetText("99")
-						BuyoutPriceSilver:Disable();
-					else
-						StartPriceCopper:Enable();
-						StartPriceSilver:Enable();
-						BuyoutPriceCopper:Enable();
-						BuyoutPriceSilver:Enable();
-					end
-					AuctionsFrameAuctions_ValidateAuction();
-				end
+				-- local function LockPrice()
+				-- 	if LeaPlusCB["AhGoldOnly"]:GetChecked() == 1 then
+				-- 		StartPriceCopper:SetText("99")
+				-- 		StartPriceCopper:Disable();
+				-- 		StartPriceSilver:SetText("99")
+				-- 		StartPriceSilver:Disable();
+				-- 		BuyoutPriceCopper:SetText("99")
+				-- 		BuyoutPriceCopper:Disable();
+				-- 		BuyoutPriceSilver:SetText("99")
+				-- 		BuyoutPriceSilver:Disable();
+				-- 	else
+				-- 		StartPriceCopper:Enable();
+				-- 		StartPriceSilver:Enable();
+				-- 		BuyoutPriceCopper:Enable();
+				-- 		BuyoutPriceSilver:Enable();
+				-- 	end
+				-- 	AuctionsFrameAuctions_ValidateAuction();
+				-- end
 
-				LeaPlusCB["AhGoldOnly"]:SetScript('OnClick', function()
-					if LeaPlusCB["AhGoldOnly"]:GetChecked() == nil then
-						LeaPlusLC["AhGoldOnly"] = "Off"
-						BuyoutPriceCopper:SetText("")
-						BuyoutPriceSilver:SetText("")
-						StartPriceCopper:SetText("")
-						StartPriceSilver:SetText("")
-					elseif LeaPlusCB["AhGoldOnly"]:GetChecked() == 1 then
-						LeaPlusLC["AhGoldOnly"] = "On"
-					end
-					LockPrice();
-				end)
+				-- LeaPlusCB["AhGoldOnly"]:SetScript('OnClick', function()
+				-- 	if LeaPlusCB["AhGoldOnly"]:GetChecked() == nil then
+				-- 		LeaPlusLC["AhGoldOnly"] = "Off"
+				-- 		BuyoutPriceCopper:SetText("")
+				-- 		BuyoutPriceSilver:SetText("")
+				-- 		StartPriceCopper:SetText("")
+				-- 		StartPriceSilver:SetText("")
+				-- 	elseif LeaPlusCB["AhGoldOnly"]:GetChecked() == 1 then
+				-- 		LeaPlusLC["AhGoldOnly"] = "On"
+				-- 	end
+				-- 	LockPrice();
+				-- end)
 
-				LeaPlusCB["AhGoldOnly"]:SetScript('OnShow', function(self)
-					self:SetChecked(LeaPlusLC["AhGoldOnly"])
-					LockPrice();
-				end)
+				-- LeaPlusCB["AhGoldOnly"]:SetScript('OnShow', function(self)
+				-- 	self:SetChecked(LeaPlusLC["AhGoldOnly"])
+				-- 	LockPrice();
+				-- end)
 
 				-- Create find button
 				LeaPlusLC:CreateButton("FindAuctionButton", AuctionFrameAuctions, "Find", "BOTTOMLEFT", 146, 246, 50, 21, "")
@@ -2917,7 +2968,67 @@
 			end
 		end
 
-		-- Check for talent switch function
+		----------------------------------------------------------------------
+		-- Accept summon
+		----------------------------------------------------------------------
+
+local function confirmSummonAfterCombat()
+    if not UnitAffectingCombat("player") then
+        ConfirmSummon()
+        StaticPopup_Hide("CONFIRM_SUMMON")
+        return true
+    end
+    return false
+end
+
+local function onUpdate(self, elapsed)
+    if not StaticPopup1:IsShown() then
+        self.TimerText:Hide()
+        return
+    end
+
+    self.timeSinceLastUpdate = self.timeSinceLastUpdate + elapsed
+    if self.timeSinceLastUpdate >= 10 then
+        if confirmSummonAfterCombat() then
+            self:SetScript("OnUpdate", nil)
+            self.TimerText:Hide()
+        end
+        self.timeSinceLastUpdate = 0
+    else
+        self.TimerText:SetText(format("Auto-accept in: %.1f", 10 - self.timeSinceLastUpdate))
+        self.TimerText:Show()
+    end
+end
+
+if event == "CONFIRM_SUMMON" then
+    local SummonFrame = CreateFrame("Frame")
+    SummonFrame.timeSinceLastUpdate = 0
+    SummonFrame:SetScript("OnUpdate", onUpdate)
+
+    -- Create and anchor the timer text
+    SummonFrame.TimerText = SummonFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    SummonFrame.TimerText:SetPoint("BOTTOM", StaticPopup1, "TOP", 0, 5)
+    SummonFrame.TimerText:Show()
+
+    return
+end
+
+
+		----------------------------------------------------------------------
+		-- Block Guild Invite
+		----------------------------------------------------------------------
+
+if event == "GUILD_INVITE_REQUEST" then
+	print("Guild invite declined.")
+    DeclineGuild()
+    StaticPopup_Hide("GUILD_INVITE")
+end
+
+
+
+		----------------------------------------------------------------------
+		-- Check For Talent Switch
+		----------------------------------------------------------------------
 		if event == "ACTIVE_TALENT_GROUP_CHANGED" then
 			LeaPlusLC:Print("Talent spec changed.")
 		end
@@ -2947,6 +3058,7 @@
 				else
 					DeclineGroup(); 
 					StaticPopup_Hide("PARTY_INVITE");
+					print("Party Invite has been auto-declined.")
 					return
 				end
 			end	
@@ -3107,8 +3219,8 @@
 		if (event == "PLAYER_LOGOUT") then
 			LeaPlusLC:Save();
 			if LeaPlusLC["FrmEnabled"] == "On" then
-				PlayerFrame:SetUserPlaced(false)
-				TargetFrame:SetUserPlaced(false)
+				-- PlayerFrame:SetUserPlaced(false)
+				-- TargetFrame:SetUserPlaced(false)
 			end
 		end
 
@@ -3484,8 +3596,8 @@
 			if LeaPlusLC:PlayerInCombat() then
 				return
 			else
-				PlayerFrame:SetUserPlaced(false);
-				TargetFrame:SetUserPlaced(false);
+				-- PlayerFrame:SetUserPlaced(false);
+				-- TargetFrame:SetUserPlaced(false);
 				wipe(LeaPlusDB)
 				wipe(LeaPlusLC)
 				ReloadUI();
@@ -3609,15 +3721,18 @@
 	LeaPlusLC:MakeCB(LeaPlusLC["Page1"], "AutoReleaseInBG"			,	"Release in battlegrounds"		, 	146, -192, 	"If checked, you will release automatically after you die in a battleground unless you are protected by a soulstone.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page1"], "AutoAcceptRes"			,	"Accept resurrect"				, 	146, -212, 	"If checked, resurrection attempts cast on you will be automatically accepted.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page1"], "NoAutoResInCombat"		,	"Exclude combat res"			, 	166, -232, 	"If checked, resurrection attempts cast on you will not be automatically accepted if the player resurrecting you is in combat.")
+	LeaPlusLC:MakeCB(LeaPlusLC["Page1"], "AutoAcceptSummon"			,	"Accept summon"					, 	146, -252, 	"If checked, summon requests will be accepted automatically unless you are in combat.")
+
 
 	LeaPlusLC:MakeTx(LeaPlusLC["Page1"], "Blockers"					, 	340, -72);
 	LeaPlusLC:MakeCB(LeaPlusLC["Page1"], "NoDuelRequests"			, 	"Block duels"					,	340, -92, 	"If checked, duel requests will be blocked unless the player requesting the duel is in your friends list.  This includes Real ID friends.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page1"], "NoPartyInvites"			, 	"Block party invites"			, 	340, -112, 	"If checked, party invitations will be blocked unless the player inviting you is in your friends list.  This includes Real ID friends.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC["Page1"], "Blizzard Blockers"		, 	340, -152);
-	LeaPlusLC:MakeCB(LeaPlusLC["Page1"], "ManageTradeGuild"			, 	"Manage blockers*"				, 	340, -172, 	"If checked, you will be able to enable or disable trade request and guild invitation and petition blocking using the two settings below.\n\nThese are replacements for the Blizzard options panel settings to make them account-wide.\n\nEnabling this option will prevent you from changing the trade request and guild invitation checkboxes in the Blizzard options panel.\n\n* Requires UI reload.")
+	LeaPlusLC:MakeCB(LeaPlusLC["Page1"], "ManageTradeGuild"			, 	"Manage blockers*"				, 	340, -172, 	"If checked, you will be able to enable or disable trade request.\n\nThis is a replacements for the Blizzard options panel settings to make them account-wide.\n\nEnabling this option will prevent you from changing the trade request in the Blizzard options panel.\n\n* Requires UI reload.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page1"], "NoTradeRequests"			, 	"Block trades"					, 	360, -192, 	"If checked, trade requests will be blocked.")
-	LeaPlusLC:MakeCB(LeaPlusLC["Page1"], "NoGuildInvites"			,	"Block guild invites"			,	360, -212, 	"If checked, guild invitations and petitions will be blocked.\n\nIf you are in the process of making your own guild, you need to uncheck this box to see your own petition.")
+	-- LeaPlusLC:MakeCB(LeaPlusLC["Page1"], "NoGuildInvites"			,	"Block guild invites"			,	340, -212, 	"If checked, guild invitations and petitions will be blocked.\n\nIf you are in the process of making your own guild, you need to uncheck this box to see your own petition.")
+	LeaPlusLC:MakeCB(LeaPlusLC["Page1"], "BlockGuild"				,	"Block Guild Invites"			, 	360, -212, 	"If checked, guild invitations will be blocked.")
 
 ----------------------------------------------------------------------
 -- 	L62: Page 2: Interaction
@@ -3636,12 +3751,12 @@
 	LeaPlusLC:MakeTx(LeaPlusLC["Page2"], "Vendors"					, 	340, -72);
 	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "AutoSellJunk"				,	"Sell junk automatically"		,	340, -92, 	"If checked, all grey items in your bags will be automatically sold when you visit a merchant.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "AutoRepairOwnFunds"		, 	"Automatically repair"			,	340, -112, 	"If checked, your armor will be automatically repaired when you visit a suitable merchant.")
-	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "NoBagAutomation"			, 	"Prevent bag automation*"		,	340, -132, 	"If checked, bags will not be opened and closed automatically when using a vendor or mailbox, allowing you to open and close them freely at your command.\n\n* Requires UI reload.")
-	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "AhExtras"					, 	"Auction house extras*"			, 	340, -152, 	"If checked, additional functionality will be added to the auction house frame.\n\nBuyout only - enables you to create buyout auctions without having to fill in the starting price boxes.\n\nGold only - Enables you to permanently set the copper and silver prices at 99 to speed up new auctions.\n\nFind - Enables easy search of the auction house for the item you are selling.\n\nIn addition, the duration dropdown setting will be saved account-wide.\n\nAs a precaution, when both the buyout only and gold only options are checked, you won't be able to create auctions if the buyout gold price box is empty (put a zero in it if needed).\n\n* Requires UI reload.")
+	--3.3.5disabledbecauseOpenAllBagsNotWorkingWithDefaultBagsHOokLeaPlusLC:MakeCB(LeaPlusLC["Page2"], "NoBagAutomation"			, 	"Prevent bag automation*"		,	340, -132, 	"If checked, bags will not be opened and closed automatically when using a vendor or mailbox, allowing you to open and close them freely at your command.\n\n* Requires UI reload.")
+	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "AhExtras"					, 	"Auction house extras*"			, 	340, -152, 	"If checked, additional functionality will be added to the auction house frame.\n\nBuyout only - enables you to create buyout auctions without having to fill in the starting price boxes.\n\nIn addition, the duration dropdown setting will be saved account-wide.\n\n\n\n* Requires UI reload.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC["Page2"], "Groups"					, 	340, -192);
-	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "NoRaidRestrictions"		, 	"Remove raid restrictions*"		,	340, -212, 	"If checked, your low level characters will be allowed to join raids.\n\nWhen combined with a free starter account, this option will allow you to create raid groups without requiring the help of another player.\n\nThis is useful if you wish to solo old raids but don't want to hassle another player to make a raid group with you.\n\nLeatrix Plus needs to be installed for the low level characters that you wish to make a raid group with.\n\n* Requires UI reload.")
-	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "NoConfirmLoot"			, 	"Don't confirm loot rolls"		,	340, -232, 	"If checked, you will not be asked to confirm rolls on loot.\n\nThis includes need, greed, disenchant and soulbound confirmations.\n\nYou can hold the shift key down while looting to over-ride this setting.")
+	-- LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "NoRaidRestrictions"		, 	"Remove raid restrictions*"		,	340, -212, 	"If checked, your low level characters will be allowed to join raids.\n\nWhen combined with a free starter account, this option will allow you to create raid groups without requiring the help of another player.\n\nThis is useful if you wish to solo old raids but don't want to hassle another player to make a raid group with you.\n\nLeatrix Plus needs to be installed for the low level characters that you wish to make a raid group with.\n\n* Requires UI reload.")
+	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "NoConfirmLoot"			, 	"Don't confirm loot rolls"		,	340, -212, 	"If checked, you will not be asked to confirm rolls on loot.\n\nThis includes need, greed, disenchant and soulbound confirmations.\n\nYou can hold the shift key down while looting to over-ride this setting.")
 
 ----------------------------------------------------------------------
 -- 	L63: Page 3: Chat
@@ -3729,14 +3844,14 @@
 -- 	L67: Page 6: Frames
 ----------------------------------------------------------------------
 
-	LeaPlusLC:MakeTx(LeaPlusLC["Page6"], "Frame Customisation"		, 	146, -72);
-	LeaPlusLC:MakeCB(LeaPlusLC["Page6"], "FrmEnabled"				,	"Enable customisation*"			, 	146, -92, 	"If checked, Leatrix Plus will manage the positions of the player frame, target frame, world PvP state, ghost frame, timer bar, durability frame and alternative power bar.\n\nYou will be able to move these frames to your desired locations and your layout will be saved account-wide.\n\nIf you wish to use another addon for frame movement, leave this box unchecked.\n\n* Requires UI reload.")
+	--3.3.5 disabled  LeaPlusLC:MakeTx(LeaPlusLC["Page6"], "Frame Customisation"		, 	146, -72);
+	--disabled in 3.3.5because needs fix LeaPlusLC:MakeCB(LeaPlusLC["Page6"], "FrmEnabled"				,	"Enable customisation*"			, 	146, -92, 	"If checked, Leatrix Plus will manage the positions of the player frame, target frame, world PvP state, ghost frame, timer bar, durability frame and alternative power bar.\n\nYou will be able to move these frames to your desired locations and your layout will be saved account-wide.\n\nIf you wish to use another addon for frame movement, leave this box unchecked.\n\n* Requires UI reload.")
 
-	LeaPlusLC:MakeTx(LeaPlusLC["Page6"], "Frame Visibility"			, 	340, -72);
-	LeaPlusLC:MakeCB(LeaPlusLC["Page6"], "NoGryphons"				,	"Hide gryphons*"				, 	340, -92, 	"If checked, the Blizzard gryphons will not be shown either side of the main bar.\n\n* Requires UI reload.")
-	LeaPlusLC:MakeCB(LeaPlusLC["Page6"], "NoClassBar"				,	"Hide class bar*"				, 	340, -112, 	"If checked, the class bar for Paladin, Warrior, Druid, Hunter and Death Knight will not be shown.\n\n* Requires UI reload.")
-	LeaPlusLC:MakeCB(LeaPlusLC["Page6"], "NoBossFrames"				,	"Hide boss frames*"				,	340, -132, 	"If checked, boss frames will not be shown under the minimap.\n\n* Requires UI reload.")
-	LeaPlusLC:MakeCB(LeaPlusLC["Page6"], "NoCharControls"			,	"Hide character controls*"		,	340, -152, 	"If checked, control buttons (such as zoom) will not be shown at the top of the character frame and dressup frame.\n\n* Requires UI reload.")
+	LeaPlusLC:MakeTx(LeaPlusLC["Page6"], "Frame Visibility"			, 	146, -72);
+	LeaPlusLC:MakeCB(LeaPlusLC["Page6"], "NoGryphons"				,	"Hide gryphons*"				, 	146, -92, 	"If checked, the Blizzard gryphons will not be shown either side of the main bar.\n\n* Requires UI reload.")
+	LeaPlusLC:MakeCB(LeaPlusLC["Page6"], "NoClassBar"				,	"Hide class bar*"				, 	146, -112, 	"If checked, the class bar for Paladin, Warrior, Druid, Hunter and Death Knight will not be shown.\n\n* Requires UI reload.")
+	LeaPlusLC:MakeCB(LeaPlusLC["Page6"], "NoBossFrames"				,	"Hide boss frames*"				,	146, -132, 	"If checked, boss frames will not be shown under the minimap.\n\n* Requires UI reload.")
+	--3.3.5 disabled LeaPlusLC:MakeCB(LeaPlusLC["Page6"], "NoCharControls"			,	"Hide character controls*"		,	340, -152, 	"If checked, control buttons (such as zoom) will not be shown at the top of the character frame and dressup frame.\n\n* Requires UI reload.")
 
 	LeaPlusLC:AutoShowButtons("Page6", "MoveFramesButton");
 	LeaPlusLC:AutoShowButtons("Page6", "ResetFramesButton");
@@ -3749,7 +3864,7 @@
 	LeaPlusLC:MakeTx(LeaPlusLC["Page7"], "Minimap"					, 	146, -72);
 	LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "UseMinimapClicks"			,	"Enable minimap clicks*"		,	146, -92, 	"If checked, you will be able to right-click the minimap to toggle the tracking menu and middle click to toggle the calendar.  The corresponding minimap buttons will be hidden.\n\n* Requires UI reload.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "MinimapMouseZoom"			,	"Use scrollwheel zoom*"			,	146, -112, 	"If checked, the minimap zoom buttons will be hidden and you will be able to use the scrollwheel to zoom in and out.\n\n* Requires UI reload.")
-	LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "MinmapHideTime"			,	"Hide the time*"				,	146, -132, 	"If checked, the time will not be shown under the minimap.\n\n* Requires UI reload.")
+	--LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "MinmapHideTime"			,	"Hide the time*"				,	146, -132, 	"If checked, the time will not be shown under the minimap.\n\n* Requires UI reload.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC["Page7"], "Graphics"					, 	146, -172);
 	LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "NoDeathEffect"			, 	"Hide death effect"				, 	146, -192, 	"If checked, the death effect will not be shown.\n\nThis is the grey screen glow that appears while your character is a ghost.")
@@ -3760,10 +3875,10 @@
 	LeaPlusLC:MakeTx(LeaPlusLC["Page7"], "Controls"					, 	340, -72);
 	LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "ShowVanityButtons"		,	"Show vanity controls*"			, 	340, -92, 	"If checked, two buttons will be added to the character sheet to allow you to toggle your helm and cloak easily.\n\nThese checkboxes are not clickable while your character is dead.\n\n* Requires UI reload.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "DungeonFinderButtons"		, 	"Show dungeon buttons*"			,	340, -112, 	"If checked, a time button will be shown in the Dungeon Finder frame which will toggle your random dungeon cooldown.\n\nA checkbox will also be available next to it.  If checked, target markers placed on your character will be automatically removed.\n\n* Requires UI reload.")
-	LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "ShowClassIcons"			, 	"Show class icons*"				, 	340, -132, 	"If checked, class specific icons will be shown above the target frame while the following spells are active.\n\nHunter - Mend Pet, Focus Fire\nDruid - Predator's Swiftness\n\nMake sure that you are not showing normal buffs on top of the target frame else you won't see them (right-click the target frame, click Move Frame then uncheck 'Buffs On Top').\n\n* Requires UI reload only if logged in as one of the classes above.")
+	-- LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "ShowClassIcons"			, 	"Show class icons*"				, 	340, -132, 	"If checked, class specific icons will be shown above the target frame while the following spells are active.\n\nHunter - Mend Pet, Focus Fire\nDruid - Predator's Swiftness\n\nMake sure that you are not showing normal buffs on top of the target frame else you won't see them (right-click the target frame, click Move Frame then uncheck 'Buffs On Top').\n\n* Requires UI reload only if logged in as one of the classes above.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "ShowHonorStat"			,	"Show honorable kills*"			, 	340, -152, 	"If checked, the total number of lifetime honorable kills for your character will be shown in the tooltip for the honor points icon (shown at the top of the honor window).\n\n* Requires UI reload.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "ShowVolume"				, 	"Show volume control*"			, 	340, -172, 	"If checked, a master volume slider will be shown in the character sheet.\n\n* Requires UI reload.")
-	LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "ShowDressTab"				, 	"Show dressup button*"			, 	340, -192, 	"If checked, a button will be added to the dressup frame which will allow you to hide your tabard.\n\n* Requires UI reload.")
+	--LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "ShowDressTab"				, 	"Show dressup button*"			, 	340, -192, 	"If checked, a button will be added to the dressup frame which will allow you to hide your tabard.\n\n* Requires UI reload.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC["Page7"], "Fun Stuff"				, 	340, -232);
 	LeaPlusLC:MakeCB(LeaPlusLC["Page7"], "ShowElitePlayerChain"		, 	"Show player chain*"			,	340, -252, 	"If checked, your player portrait will have an elite gold chain around it.\n\n* Requires UI reload.")

@@ -1,0 +1,22 @@
+
+Changelog by Sattva 1st April 2023;
+
+Addon is ready to release after backport.
+
+	What i couldn't test:
+
+		Release in Battlegrounds
+		Accept Ressurect (and exclude combat res)
+		Don't Confirm on Loot Rolls.
+		Disable Chat Fade.
+		Increase Chat History.
+		Block System Spam
+		Hide Interrupt messages
+		Hide Special effects
+
+	TODO List:
+
+		Improve Quest Accept conditions (aka skip welcome window)
+		Frame mover
+		Square minimap
+
