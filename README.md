@@ -20,10 +20,9 @@
 ## Usage
 `/ltp` - chat command to open configure menu for Leatrix Plus.
 1. Enable the mod(s) by selecting them in the Leatrix Plus menu (`/ltp` command).
-2. Ore use Minimap `green circle` button.
-3. Note that some options will require a reload to take effect. You will see the `"Reload"` button glowing if you need to reload, simply click it.
-4. Minimap Button `Click` to open configuration menu
-5. Minimap Button `Shift-Click` to reload user interface
+2. Note that some options will require a reload to take effect. You will see the `"Reload"` button glowing if you need to reload, simply click it.
+3. Minimap Button `Click` to open configuration menu
+4. Minimap Button `Shift-Click` to reload user interface
 
 ## Automation
 
