@@ -10,7 +10,7 @@
 - Code from [LeatrixPlusClasssic](https://www.curseforge.com/wow/addons/leatrix-plus-classic)    
 
 
-## Installation
+## Download & Installation
 
 1. [Download](https://github.com/Sattva-108/LeatrixPlus-WoTLK-3.3.5/archive/refs/heads/main.zip) zip via green `"Code"` button on top. 
 2. Copy the `"Leatrix_Plus"` folder within the "LeatrixPlus-WoTLK-3.3.5-main" folder inside the .zip to `"\Interface\AddOns\"`.    
