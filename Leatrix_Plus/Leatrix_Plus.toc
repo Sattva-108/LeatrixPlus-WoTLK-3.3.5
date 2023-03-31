@@ -1,0 +1,7 @@
+## Interface: 40300
+## Title: Leatrix Plus
+## Notes: Version 4.3.18
+## Version: 4.3.18
+## Author: Leatrix
+## SavedVariables: LeaPlusDB
+Leatrix_Plus.lua
