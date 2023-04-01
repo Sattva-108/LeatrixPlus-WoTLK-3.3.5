@@ -186,6 +186,44 @@
 
 
 
+		----------------------------------------------------------------------
+		--	Automatic gossip All
+		----------------------------------------------------------------------
+
+		if LeaPlusLC["AutomateGossipAll"] == "On" then
+			LpEvt:RegisterEvent("GOSSIP_SHOW");
+		else
+			LpEvt:UnregisterEvent("GOSSIP_SHOW");
+		end
+
+
+
+		----------------------------------------------------------------------
+		--	Automatic gossip town NPCs
+		----------------------------------------------------------------------
+
+		if LeaPlusLC["AutomateGossip"] == "On" then
+			LpEvt:RegisterEvent("GOSSIP_SHOW");
+		else
+			LpEvt:UnregisterEvent("GOSSIP_SHOW");
+		end
+
+
+		----------------------------------------------------------------------
+		--	Automatic guild decline
+		----------------------------------------------------------------------
+
+		if LeaPlusLC["HideHit"] == "On" then
+			PlayerFrame:UnregisterEvent("UNIT_COMBAT")
+			PetFrame:UnregisterEvent("UNIT_COMBAT")
+		else
+			PlayerFrame:RegisterEvent("UNIT_COMBAT")
+			PetFrame:RegisterEvent("UNIT_COMBAT")
+		end
+
+
+
+
 		-- Error frame quest lockout
 		if LeaPlusLC["HideErrorFrameText"] == "Off" then
 			LeaPlusLC:LockItem(LeaPlusCB["ShowQuestUpdates"],true)
@@ -542,6 +580,9 @@
 		if not LeaPlusDB["AutoSellJunk"] 			then LeaPlusLC["AutoSellJunk"]			= "Off"	else LeaPlusLC["AutoSellJunk"] 			= LeaPlusDB["AutoSellJunk"] 		end 
 		if not LeaPlusDB["AutoRepairOwnFunds"] 		then LeaPlusLC["AutoRepairOwnFunds"]	= "Off"	else LeaPlusLC["AutoRepairOwnFunds"] 	= LeaPlusDB["AutoRepairOwnFunds"] 	end 
 		if not LeaPlusDB["NoBagAutomation"]			then LeaPlusLC["NoBagAutomation"] 		= "Off"	else LeaPlusLC["NoBagAutomation"] 		= LeaPlusDB["NoBagAutomation"] 		end 
+		if not LeaPlusDB["AutomateGossip"]			then LeaPlusLC["AutomateGossip"] 		= "Off"	else LeaPlusLC["AutomateGossip"] 		= LeaPlusDB["AutomateGossip"] 		end 
+		if not LeaPlusDB["AutomateGossipAll"]			then LeaPlusLC["AutomateGossipAll"] 		= "Off"	else LeaPlusLC["AutomateGossipAll"] 		= LeaPlusDB["AutomateGossipAll"] 		end 
+
 
 		if not LeaPlusDB["NoRaidRestrictions"] 		then LeaPlusLC["NoRaidRestrictions"]	= "Off"	else LeaPlusLC["NoRaidRestrictions"] 	= LeaPlusDB["NoRaidRestrictions"] 	end 
 		if not LeaPlusDB["NoConfirmLoot"] 			then LeaPlusLC["NoConfirmLoot"]			= "Off"	else LeaPlusLC["NoConfirmLoot"] 		= LeaPlusDB["NoConfirmLoot"] 		end 
@@ -568,6 +609,8 @@
 
 		if not LeaPlusDB["HideErrorFrameText"]		then LeaPlusLC["HideErrorFrameText"]	= "Off"	else LeaPlusLC["HideErrorFrameText"]	= LeaPlusDB["HideErrorFrameText"]	end 
 		if not LeaPlusDB["ShowQuestUpdates"]		then LeaPlusLC["ShowQuestUpdates"]		= "Off"	else LeaPlusLC["ShowQuestUpdates"]		= LeaPlusDB["ShowQuestUpdates"]		end 
+		if not LeaPlusDB["HideHit"] 		then LeaPlusLC["HideHit"]		= "Off"	else LeaPlusLC["HideHit"]		= LeaPlusDB["HideHit"] 	end 
+
 
 		if not LeaPlusDB["NoSystemSpam"] 			then LeaPlusLC["NoSystemSpam"] 			= "Off"	else LeaPlusLC["NoSystemSpam"] 			= LeaPlusDB["NoSystemSpam"] 		end 
 		if not LeaPlusDB["NoInterruptSpam"]			then LeaPlusLC["NoInterruptSpam"]		= "Off"	else LeaPlusLC["NoInterruptSpam"]		= LeaPlusDB["NoInterruptSpam"]		end 
@@ -686,6 +729,8 @@
 		LeaPlusDB["AutoSellJunk"] 			= LeaPlusLC["AutoSellJunk"]
 		LeaPlusDB["AutoRepairOwnFunds"] 	= LeaPlusLC["AutoRepairOwnFunds"]
 		LeaPlusDB["NoBagAutomation"] 		= LeaPlusLC["NoBagAutomation"]
+		LeaPlusDB["AutomateGossip"] 		= LeaPlusLC["AutomateGossip"]
+		LeaPlusDB["AutomateGossipAll"] 		= LeaPlusLC["AutomateGossipAll"]
 
 		LeaPlusDB["NoRaidRestrictions"]		= LeaPlusLC["NoRaidRestrictions"]
 		LeaPlusDB["NoConfirmLoot"] 			= LeaPlusLC["NoConfirmLoot"]
@@ -712,6 +757,7 @@
 
 		LeaPlusDB["HideErrorFrameText"]		= LeaPlusLC["HideErrorFrameText"]
 		LeaPlusDB["ShowQuestUpdates"]		= LeaPlusLC["ShowQuestUpdates"]
+		LeaPlusDB["HideHit"]				= LeaPlusLC["HideHit"]
 
 		LeaPlusDB["NoSystemSpam"] 			= LeaPlusLC["NoSystemSpam"]
 		LeaPlusDB["NoInterruptSpam"]		= LeaPlusLC["NoInterruptSpam"]
@@ -3025,6 +3071,197 @@ if event == "GUILD_INVITE_REQUEST" then
 end
 
 
+		----------------------------------------------------------------------
+		-- Automate Gossip Trainer and other town NPCs.
+		----------------------------------------------------------------------
+
+			-- Function to skip gossip
+			local function SkipGossip()
+if IsShiftKeyDown() then return end
+local void, gossipType = GetGossipOptions()
+
+if gossipType then
+    -- Completely automate gossip
+    if gossipType == "banker"
+    or gossipType == "taxi"
+    or gossipType == "trainer"
+    or gossipType == "vendor"
+    or gossipType == "battlemaster"
+    or gossipType == "arenamaster"
+    then
+        if not IsAltKeyDown() then
+            SelectGossipOption(1)
+            print("|cFF00ff99AutoGossip:|r option chosen. Hold a modifier key to override.")
+        elseif IsAltKeyDown() then
+            SelectGossipOption(2)
+            print("|cFF00ff99AutoGossip:|r option 2 chosen. Hold a modifier key to override.")
+        end
+    end
+end
+end
+
+			-- 		-- Choose gossip option 2 (usually vendor window or reset talents) with ALT key
+			-- 		if IsAltKeyDown() then
+			-- 			if gossipType == "gossip"
+			-- 			then
+			-- 				SelectGossipOption(2)
+			-- 			end
+			-- 		end
+			-- 	end
+			-- end
+
+			-- Create gossip event frame
+			local gossipFrame = CreateFrame("FRAME")
+
+			-- Function to setup events
+			local function SetupEvents()
+				if LeaPlusLC["AutomateGossip"] == "On" then
+					gossipFrame:RegisterEvent("GOSSIP_SHOW")
+					gossipFrame:UnregisterEvent("GOSSIP_SHOW")
+				end
+			end
+
+			-- Setup events when option is clicked and on startup (if option is enabled)
+			LeaPlusCB["AutomateGossip"]:HookScript("OnClick", SetupEvents)
+			if LeaPlusLC["AutomateGossip"] == "On" then SkipGossip() end
+
+			-- Event handler
+			gossipFrame:SetScript("OnEvent", function()
+				-- Special treatment for specific NPCs
+				local npcGuid = UnitGUID("target") or nil
+				if npcGuid then
+					local void, void, void, void, void, npcID = strsplit("-", npcGuid)
+					if npcID then
+						if npcID == "9999999999" -- Reserved for future use
+						then
+							SkipGossip()
+							print("|cFF00ff99AutoGossip:|r option chosen. Hold a modifier key to override.")
+							return
+						end
+					end
+				end
+
+				-- Process gossip
+				if GetNumGossipOptions() == 1 and GetNumGossipAvailableQuests() == 0 and GetNumGossipActiveQuests() == 0 then
+					SkipGossip()
+					print("|cFF00ff99AutoGossip:|r option chosen. Hold a modifier key to override.")
+				end
+			end)
+
+
+
+		----------------------------------------------------------------------
+		-- Automate Gossip for All NPCs with 1 option of Gossip
+		----------------------------------------------------------------------
+			GossipFrame:HookScript("OnShow",function()
+			local targetid = tonumber(string.match(tostring(UnitGUID("target")), "-([^-]+)-[^-]+$"))
+
+			-- Shadowlands prepatch stuff START
+			local GetNumGossipAvailableQuests = GetNumGossipAvailableQuests or C_GossipInfo.GetNumAvailableQuests
+			local GetNumGossipActiveQuests = GetNumGossipActiveQuests or C_GossipInfo.GetNumActiveQuests
+			local GetNumGossipOptions = GetNumGossipOptions or C_GossipInfo.GetNumOptions
+
+			local GetGossipAvailableQuests = GetGossipAvailableQuests or C_GossipInfo.GetAvailableQuests
+			local GetGossipActiveQuests = GetGossipActiveQuests or C_GossipInfo.GetActiveQuests
+			local GetGossipOptions = GetGossipOptions or C_GossipInfo.GetOptions
+
+			local SelectGossipAvailableQuest = SelectGossipAvailableQuest or C_GossipInfo.SelectAvailableQuest
+			local SelectGossipActiveQuest = SelectGossipActiveQuest or C_GossipInfo.SelectActiveQuest
+			local SelectGossipOption = SelectGossipOption or C_GossipInfo.SelectOption
+
+			local CloseGossip = CloseGossip or C_GossipInfo.CloseGossip
+
+			local ActionStatus_DisplayMessage = ActionStatus_DisplayMessage or function(self) ActionStatus:DisplayMessage(self) end
+			-- Shadowlands prepatch stuff END
+				if LeaPlusLC["AutomateGossipAll"] == "On" then
+			-- Stop if modifier key is held down
+				if
+				(
+					IsShiftKeyDown()
+				)
+				then 
+					return
+				end 
+
+			-- Stop if NPC has quests or quest turn-ins
+				if
+				(
+					GetNumGossipActiveQuests() > 0						
+					or GetNumGossipAvailableQuests() > 0						
+				)
+				then 
+					return
+				end 
+
+			-- Stop if particular NPC
+				if
+				(
+					targetid == 155261			-- Sean Wilkers 1 (inside Statholme Pet Dungeon)
+					or targetid == 155264			-- Sean Wilkers 2 (inside Statholme Pet Dungeon)
+					or targetid == 155270			-- Sean Wilkers 3 (inside Statholme Pet Dungeon)
+					or targetid == 155346			-- Sean Wilkers 4 (inside Statholme Pet Dungeon)
+				)
+				then 
+					return
+				end 
+				
+			-- Auto select option if only 1 is available	
+			
+				if
+				(
+					GetNumGossipOptions() == 1						
+				)
+				then 
+					SelectGossipOption(1)
+					print("|cFF00ff99AutoGossip:|r option chosen. Hold a modifier key to override.")
+				end
+
+			-- Auto select option 1 if more than one option is available for the listed NPCs	
+				if
+				(
+					GetNumGossipOptions() > 1							
+				)
+				then
+					if
+					(
+						targetid == 93188		-- Mongar (Legion Dalaran)
+						or targetid == 96782		-- Lucian Trias (Legion Dalaran)
+						or targetid == 97004		-- "Red" Jack Findle (Legion Dalaran)
+						or targetid == 138708		-- Garona Halforcen (BFA)
+						or targetid == 135614		-- Master Mathias Shaw (BFA)
+						or targetid == 131287		-- Natal'hakata (Horde Zandalari Emissary)
+						or targetid == 138097		-- Muka Stormbreaker (Stormsong Valley Horde flight master)
+						or targetid == 35642		-- Jeeves
+						or targetid == 57850		-- Teleportologist Fozlebub (Darkmoon Faire)
+					)
+					then
+						SelectGossipOption(1)
+						print("|cFF00ff99AutoGossip:|r option chosen. Hold a modifier key to override.")
+					end
+
+			-- Auto select option 2 if more than one option is available for the listed NPCs	
+					if
+					(
+						targetid == 35004		-- Jaeren Sunsworn (Trial of the Champion)
+						or targetid == 35005		-- Arelas Brightstar (Trial of the Champion)
+					)
+					then
+						SelectGossipOption(2)
+						print("|cFF00ff99AutoGossip:|r option chosen. Hold a modifier key to override.")
+					end
+				end
+			end
+			end)
+
+
+		----------------------------------------------------------------------
+		-- Hide Player and Pet Hit Indicators
+		----------------------------------------------------------------------
+
+
+
+
+
 
 		----------------------------------------------------------------------
 		-- Check For Talent Switch
@@ -3755,8 +3992,10 @@ end
 	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "AhExtras"					, 	"Auction house extras*"			, 	340, -152, 	"If checked, additional functionality will be added to the auction house frame.\n\nBuyout only - enables you to create buyout auctions without having to fill in the starting price boxes.\n\nIn addition, the duration dropdown setting will be saved account-wide.\n\n\n\n* Requires UI reload.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC["Page2"], "Groups"					, 	340, -192);
-	-- LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "NoRaidRestrictions"		, 	"Remove raid restrictions*"		,	340, -212, 	"If checked, your low level characters will be allowed to join raids.\n\nWhen combined with a free starter account, this option will allow you to create raid groups without requiring the help of another player.\n\nThis is useful if you wish to solo old raids but don't want to hassle another player to make a raid group with you.\n\nLeatrix Plus needs to be installed for the low level characters that you wish to make a raid group with.\n\n* Requires UI reload.")
+	-- LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "NoRaidRestrictions"	, 	"Remove raid restrictions*"		,	340, -212, 	"If checked, your low level characters will be allowed to join raids.\n\nWhen combined with a free starter account, this option will allow you to create raid groups without requiring the help of another player.\n\nThis is useful if you wish to solo old raids but don't want to hassle another player to make a raid group with you.\n\nLeatrix Plus needs to be installed for the low level characters that you wish to make a raid group with.\n\n* Requires UI reload.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "NoConfirmLoot"			, 	"Don't confirm loot rolls"		,	340, -212, 	"If checked, you will not be asked to confirm rolls on loot.\n\nThis includes need, greed, disenchant and soulbound confirmations.\n\nYou can hold the shift key down while looting to over-ride this setting.")
+	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "AutomateGossip"			, 	"Automate Town NPCs Gossip"				,	340, -232, 	"If the gossip item type is banker, taxi, trainer, vendor or battlemaster, gossip will be skipped.|n|nYou can hold alt key to skip to gossip #2 (usually talent reset)\n\nYou can hold the shift key down to prevent this.")
+	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "AutomateGossipAll"		, 	"Always skip gossip with 1 option"				,	360, -252, 	"If checked, all the gossips with 1 option (mostly quest NPCs) will be skipped.  |n|nYou can hold the shift key down to prevent this.")
 
 ----------------------------------------------------------------------
 -- 	L63: Page 3: Chat
@@ -3791,6 +4030,10 @@ end
 	LeaPlusLC:MakeTx(LeaPlusLC["Page4"], "Error Frame"				, 	146, -152);
 	LeaPlusLC:MakeCB(LeaPlusLC["Page4"], "HideErrorFrameText"		, 	"Hide error messages*"			,	146, -172, 	"If checked, error messages (eg. 'Not enough rage') will not be shown in the error frame.\n\nCertain important errors (such as Inventory full, quest log full and votekick errors) will be shown regardless of this setting.\n\nIf you have the minimap button enabled, you can right-click it to toggle error messages without affecting this setting (you can also use /ltp toggle).\n\n* Requires UI reload.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page4"], "ShowQuestUpdates"			, 	"Show quest updates"			, 	166, -192, 	"If checked, quest updates will be shown in the error frame.")
+
+	LeaPlusLC:MakeTx(LeaPlusLC["Page4"], "More Texts"				, 	146, -232);
+	LeaPlusLC:MakeCB(LeaPlusLC["Page4"], "HideHit"					, 	"Hide portrait hit indicators"	, 	146, -252, 	"Hides portrait hit and heal indicators for player and pet")
+
 
 	LeaPlusLC:MakeTx(LeaPlusLC["Page4"], "Spam"						, 	340, -72);
 	LeaPlusLC:MakeCB(LeaPlusLC["Page4"], "NoSystemSpam"				, 	"Block system spam*"			, 	340, -92, 	"If checked, duel messages will be blocked unless you took part in the duel.\n\nDrunken state spam will be blocked unless it belongs to you.\n\nSpell spam caused by switching specs will be blocked.\n\nNPC spam will be blocked while your character is resting.\n\n* Requires UI reload.")

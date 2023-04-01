@@ -1,7 +1,13 @@
 
-Changelog by Sattva 1st April 2023;
 
-Addon is ready to release after backport.
+Changelog by Sattva 1st April 2023 #2;
+- Added 2 separate Gossip skip modules (quests NPCs, Trainer Learning etc...)
+- Added Alt Key to the Town NPC gossip automation module, to choose #2 gossip (usually talent reset at trainer)
+- Added option to hide hit/heal indicators on both player and pet portrait frame.  
+
+Changelog by Sattva 1st April 2023 #1;
+- Addon is ready to release after backport.
+
 
 	What i couldn't test:
 
@@ -16,17 +22,17 @@ Addon is ready to release after backport.
 
 	TODO List:
 
-		Improve Quest Accept conditions (aka skip welcome window and block shared aka escort quests)
-		Frame mover
-		Square minimap
-		Auto skip Gossip
-		Restore Chat Messages history after relog
-		Hide portrait numbers
-		Hide keybind text
-		Hide macro text
-		Resize mail text
-		Train All Button
-		Ready Timer for RDF/BG
-		Copy chat links/Link to Wowhead for chose quest in Quest Log
-		Faster auto loot
-		Remove transforms (Jack-o'-Lantern, Hallowed Wand, Witch, Turkey and Spraybot transformations? etc.)
+	Improve Quest Accept conditions (aka skip welcome window and block shared aka escort quests)
+	Frame mover
+	Square minimap
+	Restore Chat Messages history after relog
+	Hide keybind text
+	Hide macro text
+	Resize mail text
+	Train All Button
+	Ready Timer for RDF/BG
+Copy chat links/Link to Wowhead for chose quest in Quest Log
+Faster auto loot
+	Remove transforms (Jack-o'-Lantern, Hallowed Wand, Witch, Turkey and Spraybot transformations? etc.)
+	Flight Path timer
+Import Quest / Vendor Bindings
