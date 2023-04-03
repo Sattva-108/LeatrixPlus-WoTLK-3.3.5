@@ -3090,8 +3090,10 @@ if gossipType then
     or gossipType == "arenamaster"
     then
         if not IsAltKeyDown() then
+        	if GetNumGossipAvailableQuests() == 0 and GetNumGossipActiveQuests() == 0 then
             SelectGossipOption(1)
             print("|cFF00ff99AutoGossip:|r option chosen. Hold a modifier key to override.")
+        end
         elseif IsAltKeyDown() then
             SelectGossipOption(2)
             print("|cFF00ff99AutoGossip:|r option 2 chosen. Hold a modifier key to override.")
