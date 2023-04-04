@@ -314,6 +314,8 @@
 		or	(LeaPlusLC["ShowVolume"]				~= LeaPlusDB["ShowVolume"])
 		or	(LeaPlusLC["ShowDressTab"]				~= LeaPlusDB["ShowDressTab"])
 		or	(LeaPlusLC["AhExtras"]					~= LeaPlusDB["AhExtras"])
+		or	(LeaPlusLC["FasterLooting"]				~= LeaPlusDB["FasterLooting"])
+
 
 		or	((LeaPlusLC["ShowClassIcons"] ~= LeaPlusDB["ShowClassIcons"]) and (LeaPlusLC["PlayerClass"] == "HUNTER" or LeaPlusLC["PlayerClass"] == "DRUID"))
 
@@ -566,7 +568,9 @@
 		if not LeaPlusDB["NoTradeRequests"]			then LeaPlusLC["NoTradeRequests"]		= "Off"	else LeaPlusLC["NoTradeRequests"]		= LeaPlusDB["NoTradeRequests"]		end 
 		-- if not LeaPlusDB["NoGuildInvites"]			then LeaPlusLC["NoGuildInvites"]		= "Off"	else LeaPlusLC["NoGuildInvites"]		= LeaPlusDB["NoGuildInvites"]		end 
 		if not LeaPlusDB["AutoAcceptSummon"] 		then LeaPlusLC["AutoAcceptSummon"]		= "Off"	else LeaPlusLC["AutoAcceptSummon"]		= LeaPlusDB["AutoAcceptSummon"] 	end 
-		if not LeaPlusDB["BlockGuild"] 				then LeaPlusLC["BlockGuild"]			= "Off"	else LeaPlusLC["BlockGuild"]			= LeaPlusDB["BlockGuild"] 	end 
+		if not LeaPlusDB["BlockGuild"] 				then LeaPlusLC["BlockGuild"]			= "Off"	else LeaPlusLC["BlockGuild"]			= LeaPlusDB["BlockGuild"] 			end 
+		if not LeaPlusDB["FasterLooting"] 				then LeaPlusLC["FasterLooting"]			= "Off"	else LeaPlusLC["FasterLooting"]			= LeaPlusDB["FasterLooting"] 			end 
+
 
 		-- Interaction
 		if not LeaPlusDB["ShowQuestLevels"]			then LeaPlusLC["ShowQuestLevels"]		= "Off"	else LeaPlusLC["ShowQuestLevels"]		= LeaPlusDB["ShowQuestLevels"]		end 
@@ -581,7 +585,7 @@
 		if not LeaPlusDB["AutoRepairOwnFunds"] 		then LeaPlusLC["AutoRepairOwnFunds"]	= "Off"	else LeaPlusLC["AutoRepairOwnFunds"] 	= LeaPlusDB["AutoRepairOwnFunds"] 	end 
 		if not LeaPlusDB["NoBagAutomation"]			then LeaPlusLC["NoBagAutomation"] 		= "Off"	else LeaPlusLC["NoBagAutomation"] 		= LeaPlusDB["NoBagAutomation"] 		end 
 		if not LeaPlusDB["AutomateGossip"]			then LeaPlusLC["AutomateGossip"] 		= "Off"	else LeaPlusLC["AutomateGossip"] 		= LeaPlusDB["AutomateGossip"] 		end 
-		if not LeaPlusDB["AutomateGossipAll"]			then LeaPlusLC["AutomateGossipAll"] 		= "Off"	else LeaPlusLC["AutomateGossipAll"] 		= LeaPlusDB["AutomateGossipAll"] 		end 
+		if not LeaPlusDB["AutomateGossipAll"]		then LeaPlusLC["AutomateGossipAll"] 	= "Off"	else LeaPlusLC["AutomateGossipAll"] 	= LeaPlusDB["AutomateGossipAll"] 	end 
 
 
 		if not LeaPlusDB["NoRaidRestrictions"] 		then LeaPlusLC["NoRaidRestrictions"]	= "Off"	else LeaPlusLC["NoRaidRestrictions"] 	= LeaPlusDB["NoRaidRestrictions"] 	end 
@@ -709,6 +713,8 @@
 		LeaPlusDB["NoAutoResInCombat"]		= LeaPlusLC["NoAutoResInCombat"]
 		LeaPlusDB["AutoAcceptSummon"] 		= LeaPlusLC["AutoAcceptSummon"]
 		LeaPlusDB["BlockGuild"] 			= LeaPlusLC["BlockGuild"]
+		LeaPlusDB["FasterLooting"] 			= LeaPlusLC["FasterLooting"]
+		
 
 		LeaPlusDB["NoDuelRequests"] 		= LeaPlusLC["NoDuelRequests"]
 		LeaPlusDB["NoPartyInvites"]			= LeaPlusLC["NoPartyInvites"]
@@ -3206,13 +3212,301 @@ end
 
 
 		----------------------------------------------------------------------
-		-- Hide Player and Pet Hit Indicators
+		--	Faster looting
 		----------------------------------------------------------------------
 
+		-- if LeaPlusLC["FasterLooting"] == "On" then
+
+			-- -- Time delay
+			-- local tDelay = 0
+
+			-- -- Fast loot function
+			-- local function FastLoot()
+			-- 	if GetTime() - tDelay >= 0.3 then
+			-- 		tDelay = GetTime()
+			-- 		if not IsModifiedClick("AUTOLOOTTOGGLE") then
+			-- 			if TSMDestroyBtn and TSMDestroyBtn:IsShown() and TSMDestroyBtn:GetButtonState() == "DISABLED" then tDelay = GetTime() return end
+			-- 			if GetLootMethod() == "master" then
+			-- 				-- Master loot is enabled so fast loot if item should be auto looted
+			-- 				local lootThreshold = GetLootThreshold()
+			-- 				for i = GetNumLootItems(), 1, -1 do
+			-- 					local lootIcon, lootName, lootQuantity, currencyID, lootQuality = GetLootSlotInfo(i)
+			-- 					if lootQuality and lootThreshold and lootQuality < lootThreshold then
+			-- 						LootSlot(i)
+			-- 						print("xd master")
+			-- 					end
+			-- 				end
+			-- 			else
+			-- 				-- Master loot is disabled so fast loot regardless
+			-- 				for i = GetNumLootItems(), 1, -1 do
+			-- 					LootSlot(i)
+			-- 					print("xd")
+			-- 				end
+			-- 			end
+			-- 			tDelay = GetTime()
+			-- 		end
+			-- 	end
+			-- end
+
+			-- -- Event frame
+			-- local faster = CreateFrame("Frame")
+			-- faster:RegisterEvent("LOOT_OPENED")
+			-- faster:SetScript("OnEvent", FastLoot)
+
+		-- end
 
 
+		----------------------------------------------------------------------
+		--	Faster looting v2
+		----------------------------------------------------------------------
 
+if LeaPlusLC["FasterLooting"] == "On" then
+	local addonName = ...
+	local AutoLoot = CreateFrame("Frame")
+	local Settings = {}
 
+	local SetCVar = SetCVar or C_CVar.SetCVar
+	local GetCVarBool = GetCVarBool or C_CVar.GetCVarBool
+	local BACKPACK_CONTAINER, LOOT_SLOT_ITEM, NUM_BAG_SLOTS = BACKPACK_CONTAINER, LOOT_SLOT_ITEM, NUM_BAG_SLOTS
+	local GetContainerNumFreeSlots = GetContainerNumFreeSlots
+	local GetCursorPosition = GetCursorPosition
+	local GetItemCount = GetItemCount
+	local GetItemInfo = GetItemInfo
+	local GetLootSlotInfo = GetLootSlotInfo
+	local GetLootSlotLink = GetLootSlotLink
+	local GetLootSlotType = GetLootSlotType
+	local GetNumLootItems = GetNumLootItems
+	local IsFishingLoot = IsFishingLoot
+	local IsModifiedClick = IsModifiedClick
+	local LootSlot = LootSlot
+	-- local PlaySound = PlaySound
+	local band = bit.band
+	local select = select
+	local tContains = tContains
+
+	function AutoLoot:ProcessLoot(item, q)
+		local total, free, bagFamily = 0
+		local itemFamily = GetItemFamily(item)
+		for i = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+			free, bagFamily = GetContainerNumFreeSlots(i)
+			if (not bagFamily or bagFamily == 0) or (itemFamily and band(itemFamily, bagFamily) > 0) then
+				total = total + free
+			end
+		end
+		if total > 0 then
+			return true
+		end
+
+		local have = (GetItemCount(item) or 0)
+		if have > 0 then
+			local itemStackCount = (select(8,GetItemInfo(item)) or 0)
+			if itemStackCount > 1 then
+				while have > itemStackCount do
+					have = have - itemStackCount
+				end
+				local remain = itemStackCount - have
+				if remain >= q then
+					return true
+				end
+			end
+		end
+		return false
+	end
+
+	function AutoLoot:ShowLootFrame(show)
+		if self.ElvUI then
+			if show then
+				ElvLootFrame:SetParent(ElvLootFrameHolder)
+				ElvLootFrame:SetFrameStrata("HIGH")
+				self:LootUnderMouse(ElvLootFrame, ElvLootFrameHolder, 20)
+				self.isHidden = false
+			else
+				ElvLootFrame:SetParent(self)
+				self.isHidden = true
+			end
+		elseif LootFrame:IsEventRegistered("LOOT_SLOT_CLEARED") then
+			LootFrame.page = 1;
+			if show then
+				LootFrame_Show(LootFrame)
+				self.isHidden = false
+			else
+				self.isHidden = true
+			end
+		end
+	end
+
+	function AutoLoot:LootItems(numItems)
+		local lootThreshold = (self.isClassic and select(2,GetLootMethod()) == 0) and GetLootThreshold() or 10
+		for i = numItems, 1, -1 do
+			local itemLink = GetLootSlotLink(i)
+	--		-- local slotType = GetLootSlotType(i)
+			local quantity, _, quality, locked, isQuestItem = select(3, GetLootSlotInfo(i))
+			if locked or (quality and quality >= lootThreshold) then
+				self.isItemLocked = true
+			else
+				if slotType ~= LOOT_SLOT_ITEM or (not self.isClassic and isQuestItem) or self:ProcessLoot(itemLink, quantity) then
+					numItems = numItems - 1
+					LootSlot(i)
+				end
+			end
+		end
+		if numItems > 0 then
+			self:ShowLootFrame(true)
+			-- self:PlayInventoryFullSound()
+		end
+
+		-- if IsFishingLoot() and not Settings.global.fishingSoundDisabled then
+		-- 	PlaySound(SOUNDKIT.FISHING_REEL_IN, self.audioChannel)
+		-- end
+	end
+
+	function AutoLoot:OnEvent(e, ...)
+		-- if e == "ADDON_LOADED" and ... == addonName then
+		-- 	SpeedyAutoLootDB = SpeedyAutoLootDB or {}
+		-- 	Settings = SpeedyAutoLootDB
+		-- 	Settings.global = Settings.global or {}
+	    if e == "PLAYER_LOGIN" then
+			SetCVar("autoLootDefault",1)
+
+		elseif (e == "LOOT_READY" or e == "LOOT_OPENED") and not self.isLooting then
+			local aL = ...
+
+			local numItems = GetNumLootItems()
+			if numItems == 0 then
+				return
+			end
+
+			self.isLooting = true
+			-- if aL or (aL == nil and GetCVarBool("autoLootDefault") ~= IsModifiedClick("AUTOLOOTTOGGLE")) then
+			if not IsModifiedClick("AUTOLOOTTOGGLE") then
+				self:LootItems(numItems)
+				-- print("loot")
+			else
+				self:ShowLootFrame(true)
+				-- print("show")
+			end
+		elseif e == "LOOT_CLOSED" then
+			self.isLooting = false
+			self.isHidden = false
+			self.isItemLocked = false
+			self:ShowLootFrame(false)
+		elseif (e == "UI_ERROR_MESSAGE" and tContains(({ERR_INV_FULL,ERR_ITEM_MAX_COUNT}), select(2,...))) or e == "LOOT_BIND_CONFIRM" then
+			if self.isLooting and self.isHidden then
+				self:ShowLootFrame(true)
+				-- if e == "UI_ERROR_MESSAGE" then
+				-- 	self:PlayInventoryFullSound()
+				-- end
+			end
+		end
+	end
+
+	-- function AutoLoot:PlayInventoryFullSound()
+	-- 	if Settings.global.enableSound and not self.isItemLocked then
+	-- 		PlaySound(Settings.global.InventoryFullSound, self.audioChannel)
+	-- 	end
+	-- end
+
+	function AutoLoot:LootUnderMouse(self, parent, yoffset)
+		if GetCVarBool("lootUnderMouse") then
+			local x, y = GetCursorPosition()
+			x = x / self:GetEffectiveScale()
+			y = y / self:GetEffectiveScale()
+
+			self:ClearAllPoints()
+			self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x - 40, y + (yoffset or 20))
+			self:GetCenter()
+			self:Raise()
+		else
+			self:ClearAllPoints()
+			self:SetPoint("TOPLEFT", parent, "TOPLEFT")
+		end
+	end
+
+	-- function AutoLoot:Help(msg)
+	-- 	local fName = "|cffEEE4AESpeedy AutoLoot:|r "
+	-- 	local _, _, cmd, args = string.find(msg, "%s?(%w+)%s?(.*)")
+	-- 	if not cmd or cmd == "" or cmd == "help" then
+	-- 		print(fName.."   |cff58C6FA/sal    /speedyautoloot    /speedyloot|r")
+	-- 		print("  |cff58C6FA/sal auto              -|r  |cffEEE4AEEnable Auto Looting for all characters|r")
+	-- 		print("  |cff58C6FA/sal fish              -|r  |cffEEE4AEDisable Fishing reel in sound|r")
+	-- 		print("  |cff58C6FA/sal sound            -|r  |cffEEE4AEPlay a Sound when Inventory is full while looting|r")
+	-- 		if self.isClassic then
+	-- 			print("  |cff58C6FA/sal set (SoundID) -|r  |cffEEE4AESet a Sound (SoundID), Default:  /sal set 139|r")
+	-- 		else
+	-- 			print("  |cff58C6FA/sal set (SoundID) -|r  |cffEEE4AESet a Sound (SoundID), Default:  /sal set 44321|r")
+	-- 		end
+	-- 	elseif cmd == "fish" then
+	-- 		if not Settings.global.fishingSoundDisabled then
+	-- 			Settings.global.fishingSoundDisabled = true
+	-- 			print(fName.."|cffB6B6B6Fishing reel in sound disabled.")
+	-- 		else
+	-- 			Settings.global.fishingSoundDisabled = false
+	-- 			print(fName.."|cff37DB33Fishing reel in sound enabled.")
+	-- 		end
+	-- 	elseif cmd == "auto" then
+	-- 		if Settings.global.alwaysEnableAutoLoot then
+	-- 			Settings.global.alwaysEnableAutoLoot = false
+	-- 			print(fName.."|cffB6B6B6Auto Loot for all Characters disabled.")
+	-- 			SetCVar("autoLootDefault",0)
+	-- 		else
+	-- 			Settings.global.alwaysEnableAutoLoot = true
+	-- 			print(fName.."|cff37DB33Auto Loot for all Characters enabled.")
+	-- 			SetCVar("autoLootDefault",1)
+	-- 		end
+	-- 	elseif cmd == "sound" then
+	-- 		if Settings.global.enableSound then
+	-- 			Settings.global.enableSound = false
+	-- 			print(fName.."|cffB6B6B6Don't play a sound when inventory is full.")
+	-- 		else
+	-- 			if not Settings.global.InventoryFullSound then
+	-- 				if self.isClassic then
+	-- 					Settings.global.InventoryFullSound = 139
+	-- 				else
+	-- 					Settings.global.InventoryFullSound = 44321
+	-- 				end
+	-- 			end
+	-- 			Settings.global.enableSound = true
+	-- 			print(fName.."|cff37DB33Play a sound when inventory is full.")
+	-- 		end
+	-- 	elseif cmd == "set" and args ~= "" then
+	-- 		local SoundID = tonumber(args:match("%d+"))
+	-- 		if SoundID then
+	-- 			Settings.global.InventoryFullSound = tonumber(args:match("%d+"))
+	-- 			PlaySound(SoundID, self.audioChannel)
+	-- 			print(fName.."Set Sound|r |cff37DB33"..SoundID.."|r")
+	-- 		end
+	-- 	end
+	-- end
+
+	function AutoLoot:OnLoad()
+		self:SetToplevel(true)
+		self:Hide()
+		self:SetScript("OnEvent", function(_,...)
+			self:OnEvent(...)
+		end)
+
+		for _,e in next, ({	"ADDON_LOADED", "PLAYER_LOGIN", "LOOT_READY", "LOOT_OPENED", "LOOT_CLOSED", "UI_ERROR_MESSAGE" }) do
+			self:RegisterEvent(e)
+		end
+
+		self.audioChannel = "master"
+		self.isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+
+		if self.isClassic then
+	        self:RegisterEvent("LOOT_BIND_CONFIRM")
+	        self:RegisterEvent("OPEN_MASTER_LOOT_LIST")
+		end
+
+		LootFrame:UnregisterEvent('LOOT_OPENED')
+	end
+
+	-- SLASH_SPEEDYAUTOLOOT1, SLASH_SPEEDYAUTOLOOT2, SLASH_SPEEDYAUTOLOOT3  = "/sal", "/speedyloot", "/speedyautoloot"
+	-- SlashCmdList["SPEEDYAUTOLOOT"] = function(...)
+	--     AutoLoot:Help(...)
+	-- end
+
+	AutoLoot:OnLoad()
+end
 
 		----------------------------------------------------------------------
 		-- Check For Talent Switch
@@ -3949,8 +4243,10 @@ end
 	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "AutoRepairOwnFunds"		, 	"Automatically repair"			,	340, -112, 	"If checked, your armor will be automatically repaired when you visit a suitable merchant.")
 	--3.3.5disabledbecauseOpenAllBagsNotWorkingWithDefaultBagsHOokLeaPlusLC:MakeCB(LeaPlusLC["Page2"], "NoBagAutomation"			, 	"Prevent bag automation*"		,	340, -132, 	"If checked, bags will not be opened and closed automatically when using a vendor or mailbox, allowing you to open and close them freely at your command.\n\n* Requires UI reload.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "AhExtras"					, 	"Auction house extras*"			, 	340, -152, 	"If checked, additional functionality will be added to the auction house frame.\n\nBuyout only - enables you to create buyout auctions without having to fill in the starting price boxes.\n\nIn addition, the duration dropdown setting will be saved account-wide.\n\n\n\n* Requires UI reload.")
+	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "FasterLooting"			, 	"Faster Looting*"				, 	340, -172, 	"If checked, your auto-looting will become much faster.\n\nIt additionaly hides loot window to make looting even faster, however you will be able to see it when your inventory is full or you looted with Modifier key (shift key default)\n\n\n\n* Requires UI reload.")
 
-	LeaPlusLC:MakeTx(LeaPlusLC["Page2"], "Groups"					, 	340, -192);
+
+	LeaPlusLC:MakeTx(LeaPlusLC["Page2"], "Groups"					, 	340, -195);
 	-- LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "NoRaidRestrictions"	, 	"Remove raid restrictions*"		,	340, -212, 	"If checked, your low level characters will be allowed to join raids.\n\nWhen combined with a free starter account, this option will allow you to create raid groups without requiring the help of another player.\n\nThis is useful if you wish to solo old raids but don't want to hassle another player to make a raid group with you.\n\nLeatrix Plus needs to be installed for the low level characters that you wish to make a raid group with.\n\n* Requires UI reload.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "NoConfirmLoot"			, 	"Don't confirm loot rolls"		,	340, -212, 	"If checked, you will not be asked to confirm rolls on loot.\n\nThis includes need, greed, disenchant and soulbound confirmations.\n\nYou can hold the shift key down while looting to over-ride this setting.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page2"], "AutomateGossip"			, 	"Automate Town NPCs Gossip"				,	340, -232, 	"If the gossip item type is banker, taxi, trainer, vendor or battlemaster, gossip will be skipped.|n|nYou can hold alt key to skip to gossip #2 (usually talent reset)\n\nYou can hold the shift key down to prevent this.")

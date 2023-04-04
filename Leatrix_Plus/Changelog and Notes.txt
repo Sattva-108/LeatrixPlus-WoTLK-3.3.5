@@ -1,10 +1,11 @@
 Changelog by Sattva 4th April 2023 #4;
 - Do not automatically repair if Shift Modifier Key is held down while targetting Repair NPC.
-- New icon and code for minimap button, using Libraries, this fixes how minimap button positioned by addons like ElvUI, PrettyMinimap and others. Also now toggling minimap button doesn't require reload.
+- New icon and code for minimap button, using Libraries, this fixes how minimap button is positioned by addons like ElvUI, PrettyMinimap and others. 
+- Toggling minimap button doesn't require reload.
+- Added Faster Loot module, which increases loot speed significantly.
 
 Changelog by Sattva 3rd April 2023 #3;
 - Quick fix to not automate Town NPC Gossip if there is an Available/Complete quest at NPC.
-
 
 Changelog by Sattva 1st April 2023 #2;
 - Added 2 separate Gossip skip modules (quests NPCs, Trainer Learning etc...)
@@ -39,9 +40,9 @@ Changelog by Sattva 1st April 2023 #1;
 	Ready Timer for RDF/BG
 Copy chat links
 Links to wowhead-wotlk in Quest Log for every quest.
-Faster auto loot
 	Remove transforms (Jack-o'-Lantern, Hallowed Wand, Witch, Turkey and Spraybot transformations? etc.)
 	Flight Path timer
 Import Quest / Vendor Bindings
 Make Action Bar buttons full red if out of range (instead of blizzard text red only)
 Auto-Spirit Res.
+Allow some error texts like mining, herbing
