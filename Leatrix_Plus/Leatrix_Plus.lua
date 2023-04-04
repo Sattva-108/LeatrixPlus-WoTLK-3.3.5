@@ -294,7 +294,7 @@
 		or	(LeaPlusLC["NoAnnounceInChat"]			~= LeaPlusDB["NoAnnounceInChat"])
 		or	(LeaPlusLC["NoChannelsInDungeons"]		~= LeaPlusDB["NoChannelsInDungeons"])
 		or	(LeaPlusLC["FrmEnabled"]				~= LeaPlusDB["FrmEnabled"])
-		or	(LeaPlusLC["ShowMinimapIcon"]			~= LeaPlusDB["ShowMinimapIcon"])
+		-- or	(LeaPlusLC["ShowMinimapIcon"]			~= LeaPlusDB["ShowMinimapIcon"])
 		or	(LeaPlusLC["Manageclasscolors"]			~= LeaPlusDB["Manageclasscolors"])
 		or	(LeaPlusLC["UseEasyChatResizing"]		~= LeaPlusDB["UseEasyChatResizing"])
 		or	(LeaPlusLC["NoInterruptSpam"]			~= LeaPlusDB["NoInterruptSpam"])
@@ -1589,151 +1589,100 @@
 		end
 
 		----------------------------------------------------------------------
-		--	Minimap button
+		-- Minimap button (no reload required)
 		----------------------------------------------------------------------
 
-		if LeaPlusLC["ShowMinimapIcon"] == "On" then
-	
-			-- Create minimap button
-			LeaPlusCB["MinimapButton"] = CreateFrame("Button", "LeaPlusMapBtn", Minimap) 
-			LeaPlusCB["MinimapButton"]:SetSize(32,32)
-			LeaPlusCB["MinimapButton"]:SetMovable(true)
-			LeaPlusCB["MinimapButton"]:SetFrameStrata("MEDIUM")
-			LeaPlusCB["MinimapButton"]:SetNormalTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Green.png")
-			LeaPlusCB["MinimapButton"]:SetPushedTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Red.png")
-			LeaPlusCB["MinimapButton"]:SetHighlightTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Green.png")
-			LeaPlusCB["MinimapButton"]:RegisterForClicks("AnyUp") 
+		do
 
-			-- Add Tooltip
-			LeaPlusCB["MinimapButton"]:SetScript("OnEnter", function(self)
-    if LeaPlusLC["PlusShowTips"] == "On" then
-        GameTooltip:SetOwner(self, "ANCHOR_TOP")
-        GameTooltip:SetText("Leatrix Plus", nil, nil, nil, nil, true)
-        GameTooltip:AddLine("|cffeda55fClick|r to open Leatrix Plus options.", 1, 1, 1, true)
-        GameTooltip:AddLine("|cffeda55fShift-Click|r to reload the user interface.", 1, 1, 1, true)
-        -- GameTooltip:AddLine("Line 3: More text", 1, 1, 1, true)
-        GameTooltip:Show()
-    end
-end)
+			-- Minimap button click function
+			local function MiniBtnClickFunc(arg1)
 
-			LeaPlusCB["MinimapButton"]:SetScript("OnLeave", function(self)
-				GameTooltip:Hide()
-			end)
-
-			-- Control movement
-			LeaPlusCB["MinimapButton"]:RegisterForDrag("LeftButton")
-			LeaPlusCB["MinimapButton"]:SetScript("OnDragStart", function()
-				LeaPlusCB["MinimapButton"]:StartMoving()
-				LeaPlusCB["MinimapButton"]:SetScript("OnUpdate", function() 
-					local Xpoa, Ypoa = GetCursorPosition()
-					local Xmin, Ymin = Minimap:GetLeft(), Minimap:GetBottom()
-					Xpoa = Xmin - Xpoa / UIParent:GetScale()+70
-					Ypoa = Ypoa / UIParent:GetScale() - Ymin-70
-					LeaPlusLC["MinimapIconPos"] = math.deg(math.atan2(Ypoa, Xpoa))
-					LeaPlusCB["MinimapButton"]:SetPoint("TOPLEFT", "Minimap", "TOPLEFT", 52 - (80 * cos(LeaPlusLC["MinimapIconPos"])), (80 * sin(LeaPlusLC["MinimapIconPos"])) - 52)
-				end)
-			end)
-
-			LeaPlusCB["MinimapButton"]:SetScript("OnDragStop", function ()
-				LeaPlusCB["MinimapButton"]:StopMovingOrSizing();
-				LeaPlusCB["MinimapButton"]:SetUserPlaced(false);
-				LeaPlusCB["MinimapButton"]:SetScript("OnUpdate", nil)
-			end)
-
-			-- Control clicks
-			LeaPlusCB["MinimapButton"]:SetScript("OnClick", function(self,arg1)
 				if LeaPlusLC["LeaPlusFrameMove"] and LeaPlusLC["LeaPlusFrameMove"]:IsShown() then return end
-				if LeaPlusCB["TooltipDragFrame"] and LeaPlusCB["TooltipDragFrame"]:IsShown() then return end
-				if InterfaceOptionsFrame:IsShown() or VideoOptionsFrame:IsShown() then return end
+                if LeaPlusCB["TooltipDragFrame"] and LeaPlusCB["TooltipDragFrame"]:IsShown() then return end
+                if InterfaceOptionsFrame:IsShown() or VideoOptionsFrame:IsShown() then return end
 
-				if arg1 == "LeftButton" then
-					if IsShiftKeyDown() then
-						ReloadUI();
-						--Sound_ToggleMusic();
-						if GetCVar("Sound_EnableMusic") == "1" then
-							LeaPlusLC:Print("Music enabled.")
-						else
-							LeaPlusLC:Print("Music disabled.")
-						end
-					else
-						if LeaPlusLC["PageF"]:IsShown() then
-							LeaPlusLC:HideFrames();
-						else
-							LeaPlusLC:HideFrames();
-							LeaPlusLC["PageF"]:Show();
-						end
-						if LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]] and LeaPlusLC["OpenPlusAtHome"] == "Off" then
-							 LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]]:Show()
-						else
-							LeaPlusLC["Page0"]:Show();
-						end
-					end
-				end
-				if arg1 == "RightButton" then
-					if IsShiftKeyDown() then
-						ReloadUI();
-						--Sound_ToggleMusic();
-						if GetCVar("Sound_EnableMusic") == "1" then
-							LeaPlusLC:Print("Music enabled.")
-						else
-							LeaPlusLC:Print("Music disabled.")
-						end
-					else
-						if LeaPlusLC["PageF"]:IsShown() then
-							LeaPlusLC:HideFrames();
-						else
-							LeaPlusLC:HideFrames();
-							LeaPlusLC["PageF"]:Show();
-						end
-						if LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]] and LeaPlusLC["OpenPlusAtHome"] == "Off" then
-							 LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]]:Show()
-						else
-							LeaPlusLC["Page0"]:Show();
-						end
-					end
-				end
+                if arg1 == "LeftButton" then
+                    if IsShiftKeyDown() then
+                        ReloadUI();
+                        --Sound_ToggleMusic();
+                        if GetCVar("Sound_EnableMusic") == "1" then
+                            LeaPlusLC:Print("Music enabled.")
+                        else
+                            LeaPlusLC:Print("Music disabled.")
+                        end
+                    else
+                        if LeaPlusLC["PageF"]:IsShown() then
+                            LeaPlusLC:HideFrames();
+                        else
+                            LeaPlusLC:HideFrames();
+                            LeaPlusLC["PageF"]:Show();
+                        end
+                        if LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]] and LeaPlusLC["OpenPlusAtHome"] == "Off" then
+                             LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]]:Show()
+                        else
+                            LeaPlusLC["Page0"]:Show();
+                        end
+                    end
+                end
+                if arg1 == "RightButton" then
+                    if IsShiftKeyDown() then
+                        ReloadUI();
+                        --Sound_ToggleMusic();
+                        if GetCVar("Sound_EnableMusic") == "1" then
+                            LeaPlusLC:Print("Music enabled.")
+                        else
+                            LeaPlusLC:Print("Music disabled.")
+                        end
+                    else
+                        if LeaPlusLC["PageF"]:IsShown() then
+                            LeaPlusLC:HideFrames();
+                        else
+                            LeaPlusLC:HideFrames();
+                            LeaPlusLC["PageF"]:Show();
+                        end
+                        if LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]] and LeaPlusLC["OpenPlusAtHome"] == "Off" then
+                             LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]]:Show()
+                        else
+                            LeaPlusLC["Page0"]:Show();
+                        end
+                    end
+                end
 
-				-- if arg1 == "RightButton" then
-				-- 	if LeaPlusLC["HideErrorFrameText"] == "On" then
-				-- 		if LeaPlusLC["ShowErrorsFlag"] == 1 then 
-				-- 			LeaPlusLC["ShowErrorsFlag"] = 0
-				-- 			LeaPlusCB["MinimapButton"]:SetNormalTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Red.png")
-				-- 			LeaPlusCB["MinimapButton"]:SetPushedTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Red.png")
-				-- 			LeaPlusCB["MinimapButton"]:SetHighlightTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Red.png")
-				-- 		else
-				-- 			LeaPlusLC["ShowErrorsFlag"] = 1
-				-- 			LeaPlusCB["MinimapButton"]:SetNormalTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Green.png")
-				-- 			LeaPlusCB["MinimapButton"]:SetPushedTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Green.png")
-				-- 			LeaPlusCB["MinimapButton"]:SetHighlightTexture("Interface\\addons\\Leatrix_Plus\\assets\\Indicator-Green.png")
-				-- 		end
-				-- 	else
-				-- 		LeaPlusLC:Print("The option to hide error messages needs to be enabled first.")
-				-- 	end
-				-- end
-				-- if arg1 == "MiddleButton" then
-				-- 	if (IsAddOnLoaded("Recount")) then
-				-- 		if Recount_MainWindow:IsShown() then
-				-- 			Recount.MainWindow:Hide();
-				-- 		else
-				-- 			Recount.MainWindow:Show();
-				-- 			Recount:RefreshMainWindow();
-				-- 		end
-				-- 	end
-				-- end
-			end)
-
-			-- Ensure position is a valid number
-			if type(LeaPlusLC["MinimapIconPos"]) ~= "number" then
-				LeaPlusLC["MinimapIconPos"] = -65
 			end
 
-			if LeaPlusLC["MinimapIconPos"] < -180 or LeaPlusLC["MinimapIconPos"] > 180 then 
-				LeaPlusLC["MinimapIconPos"] = -65
+			-- Create minimap button using LibDBIcon
+			local miniButton = LibStub("LibDataBroker-1.1"):NewDataObject("Leatrix_Plus", {
+				type = "data source",
+				text = "Leatrix Plus",
+				icon = "Interface\\addons\\Leatrix_Plus\\assets\\minimapicon.tga",
+				OnClick = function(self, btn)
+					MiniBtnClickFunc(btn)
+				end,
+				OnTooltipShow = function(tooltip)
+					if not tooltip or not tooltip.AddLine then return end
+					tooltip:AddLine("Leatrix Plus")
+					tooltip:AddLine("|cffeda55fClick|r to open Leatrix Plus options.")
+                    tooltip:AddLine("|cffeda55fShift-Click|r to reload the user interface.")
+				end,
+			})
+
+			local icon = LibStub("LibDBIcon-1.0", true)
+			icon:Register("Leatrix_Plus", miniButton, LeaPlusDB)
+
+			-- Function to toggle LibDBIcon
+			local function SetLibDBIconFunc()
+				if LeaPlusLC["ShowMinimapIcon"] == "On" then
+					LeaPlusDB["hide"] = false
+					icon:Show("Leatrix_Plus")
+				else
+					LeaPlusDB["hide"] = true
+					icon:Hide("Leatrix_Plus")
+				end
 			end
 
-			-- Set position
-			LeaPlusCB["MinimapButton"]:ClearAllPoints();
-			LeaPlusCB["MinimapButton"]:SetPoint("TOPLEFT","Minimap","TOPLEFT",52-(80*cos(LeaPlusLC["MinimapIconPos"])),(80*sin(LeaPlusLC["MinimapIconPos"]))-52)
+			-- Set LibDBIcon when option is clicked and on startup
+			LeaPlusCB["ShowMinimapIcon"]:HookScript("OnClick", SetLibDBIconFunc)
+			SetLibDBIconFunc()
 
 		end
 
@@ -3092,11 +3041,11 @@ if gossipType then
         if not IsAltKeyDown() then
         	if GetNumGossipAvailableQuests() == 0 and GetNumGossipActiveQuests() == 0 then
             SelectGossipOption(1)
-            print("|cFF00ff99AutoGossip:|r option chosen. Hold a modifier key to override.")
+            print("|cFF00ff99AutoGossip:|r option chosen. Hold a shift key to override.")
         end
         elseif IsAltKeyDown() then
             SelectGossipOption(2)
-            print("|cFF00ff99AutoGossip:|r option 2 chosen. Hold a modifier key to override.")
+            print("|cFF00ff99AutoGossip:|r option 2 chosen. Hold a shift key to override.")
         end
     end
 end
@@ -3137,7 +3086,7 @@ end
 						if npcID == "9999999999" -- Reserved for future use
 						then
 							SkipGossip()
-							print("|cFF00ff99AutoGossip:|r option chosen. Hold a modifier key to override.")
+							print("|cFF00ff99AutoGossip:|r option chosen. Hold a shift key to override.")
 							return
 						end
 					end
@@ -3146,7 +3095,7 @@ end
 				-- Process gossip
 				if GetNumGossipOptions() == 1 and GetNumGossipAvailableQuests() == 0 and GetNumGossipActiveQuests() == 0 then
 					SkipGossip()
-					print("|cFF00ff99AutoGossip:|r option chosen. Hold a modifier key to override.")
+					print("|cFF00ff99AutoGossip:|r option chosen. Hold a shift key to override.")
 				end
 			end)
 
@@ -3215,7 +3164,7 @@ end
 				)
 				then 
 					SelectGossipOption(1)
-					print("|cFF00ff99AutoGossip:|r option chosen. Hold a modifier key to override.")
+					print("|cFF00ff99AutoGossip:|r option chosen. Hold a shift key to override.")
 				end
 
 			-- Auto select option 1 if more than one option is available for the listed NPCs	
@@ -3238,7 +3187,7 @@ end
 					)
 					then
 						SelectGossipOption(1)
-						print("|cFF00ff99AutoGossip:|r option chosen. Hold a modifier key to override.")
+						print("|cFF00ff99AutoGossip:|r option chosen. Hold a shift key to override.")
 					end
 
 			-- Auto select option 2 if more than one option is available for the listed NPCs	
@@ -3249,7 +3198,7 @@ end
 					)
 					then
 						SelectGossipOption(2)
-						print("|cFF00ff99AutoGossip:|r option chosen. Hold a modifier key to override.")
+						print("|cFF00ff99AutoGossip:|r option chosen. Hold a shift key to override.")
 					end
 				end
 			end
@@ -3411,6 +3360,14 @@ end
 		-- Repair automatically
 		if event == "MERCHANT_SHOW" and LeaPlusLC["AutoRepairOwnFunds"] == "On" then
 
+		-- Stop if shift key is held down
+		if
+		(
+			IsShiftKeyDown()
+		)
+		then 
+			return
+		end 
 			if CanMerchantRepair() then
 				local PlayerMoney = GetMoney()
 				local RepairCost, CanRepair = GetRepairAllCost()
@@ -4030,7 +3987,7 @@ end
 	LeaPlusLC:MakeCB(LeaPlusLC["Page4"], "HideSubzoneText"			, 	"Hide subzone text*"			,	146, -112, 	"If checked, subzone text will not be shown (eg. 'Mystic Quarter').\n\n* Requires UI reload.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC["Page4"], "Error Frame"				, 	146, -152);
-	LeaPlusLC:MakeCB(LeaPlusLC["Page4"], "HideErrorFrameText"		, 	"Hide error messages*"			,	146, -172, 	"If checked, error messages (eg. 'Not enough rage') will not be shown in the error frame.\n\nCertain important errors (such as Inventory full, quest log full and votekick errors) will be shown regardless of this setting.\n\nIf you have the minimap button enabled, you can right-click it to toggle error messages without affecting this setting (you can also use /ltp toggle).\n\n* Requires UI reload.")
+	LeaPlusLC:MakeCB(LeaPlusLC["Page4"], "HideErrorFrameText"		, 	"Hide error messages*"			,	146, -172, 	"If checked, error messages (eg. 'Not enough rage') will not be shown in the error frame.\n\nCertain important errors (such as Inventory full, quest log full and votekick errors) will be shown regardless of this setting.\n\nYou can also use /ltp toggle.\n\n* Requires UI reload.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page4"], "ShowQuestUpdates"			, 	"Show quest updates"			, 	166, -192, 	"If checked, quest updates will be shown in the error frame.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC["Page4"], "More Texts"				, 	146, -232);
@@ -4134,7 +4091,7 @@ end
 ----------------------------------------------------------------------
 
 	LeaPlusLC:MakeTx(LeaPlusLC["Page8"], "Settings"					, 146, -72);
-	LeaPlusLC:MakeCB(LeaPlusLC["Page8"], "ShowMinimapIcon"			, "Show minimap button*"			, 146, -92, 	"If checked, a minimap button will be available.\n\nLeft-clicking it will launch the options panel.\n\nRight-clicking it will toggle error messages and the button color will change to red while error messages are showing.  The option to hide error messages needs to be enabled for this to work.\n\nMiddle-clicking it will toggle the Recount window if you have Recount installed.\n\nHolding down shift and clicking it will toggle the in-game music setting.\n\n* Requires UI reload.")
+	LeaPlusLC:MakeCB(LeaPlusLC["Page8"], "ShowMinimapIcon"			, "Show minimap button"			, 146, -92, 	"If checked, a minimap button will be available.\n\nLeft or Right-clicking it will launch the options panel.\n\n Middle-clicking it will toggle the Recount window if you have Recount installed.\n\nHolding down shift and clicking it will Reload UI")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page8"], "PlusShowTips"				, "Show tooltips"					, 146, -112, 	"If checked, tooltips will be shown for all of the checkboxes and buttons in Leatrix Plus.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page8"], "ShowBackground"			, "Show background"					, 146, -132, 	"If checked, the options panel background image will be shown.")
 	LeaPlusLC:MakeCB(LeaPlusLC["Page8"], "OpenPlusAtHome"			, "Show home on startup"			, 146, -152, 	"If checked, the home page will always be shown when you open Leatrix Plus.\n\nIf unchecked, Leatrix Plus will open with the page that you were on when you last closed it.")

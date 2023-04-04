@@ -1,5 +1,10 @@
+Changelog by Sattva 4th April 2023 #4;
+- Do not automatically repair if Shift Modifier Key is held down while targetting Repair NPC.
+- New icon and code for minimap button, using Libraries, this fixes how minimap button positioned by addons like ElvUI, PrettyMinimap and others. Also now toggling minimap button doesn't require reload.
+
 Changelog by Sattva 3rd April 2023 #3;
 - Quick fix to not automate Town NPC Gossip if there is an Available/Complete quest at NPC.
+
 
 Changelog by Sattva 1st April 2023 #2;
 - Added 2 separate Gossip skip modules (quests NPCs, Trainer Learning etc...)
@@ -38,7 +43,5 @@ Faster auto loot
 	Remove transforms (Jack-o'-Lantern, Hallowed Wand, Witch, Turkey and Spraybot transformations? etc.)
 	Flight Path timer
 Import Quest / Vendor Bindings
-Fix the anchoring of minimap button with Pretty Minimap addon, need to handle like weakauras/Bugsack addon minimap
 Make Action Bar buttons full red if out of range (instead of blizzard text red only)
 Auto-Spirit Res.
-Do not repair if shift button hold when opening vendor

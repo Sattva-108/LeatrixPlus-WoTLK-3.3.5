@@ -5,3 +5,8 @@
 ## Author: Leatrix, backport by Sattva#7238 - discord
 ## SavedVariables: LeaPlusDB
 Leatrix_Plus.lua
+
+Libs\LibStub\Libstub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
