@@ -1,3 +1,7 @@
+Changelog by Sattva 19th May 2023 #5;
+- Modify significantly the Faster Loot module. Based on my WeakAura https://wago.io/uGLs2fARD
+- Make the right click on minimap button to reload UI.
+
 Changelog by Sattva 4th April 2023 #4;
 - Do not automatically repair if Shift Modifier Key is held down while targetting Repair NPC.
 - New icon and code for minimap button, using Libraries, this fixes how minimap button is positioned by addons like ElvUI, PrettyMinimap and others. 
@@ -46,3 +50,10 @@ Import Quest / Vendor Bindings
 Make Action Bar buttons full red if out of range (instead of blizzard text red only)
 Auto-Spirit Res.
 Allow some error texts like mining, herbing
+Allow only one line of error text option
+If player has tooltip hidden in combat, make an option to toggle tooltip if "Alt" key is hold.
+Add more tweaks to Auction House extras module.
+Need to add exceptions for automating the gossip. (But first need to find NPCs that need exceptions, or make user be able to add exceptions)
+Make the config options for Faster Loot module. (disable sound, change sound, error filter, smaller error frame, faster fading - make all this optional)
+
+

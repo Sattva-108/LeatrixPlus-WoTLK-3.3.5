@@ -1608,15 +1608,6 @@
                 if InterfaceOptionsFrame:IsShown() or VideoOptionsFrame:IsShown() then return end
 
                 if arg1 == "LeftButton" then
-                    if IsShiftKeyDown() then
-                        ReloadUI();
-                        --Sound_ToggleMusic();
-                        if GetCVar("Sound_EnableMusic") == "1" then
-                            LeaPlusLC:Print("Music enabled.")
-                        else
-                            LeaPlusLC:Print("Music disabled.")
-                        end
-                    else
                         if LeaPlusLC["PageF"]:IsShown() then
                             LeaPlusLC:HideFrames();
                         else
@@ -1628,31 +1619,10 @@
                         else
                             LeaPlusLC["Page0"]:Show();
                         end
-                    end
                 end
                 if arg1 == "RightButton" then
-                    if IsShiftKeyDown() then
                         ReloadUI();
-                        --Sound_ToggleMusic();
-                        if GetCVar("Sound_EnableMusic") == "1" then
-                            LeaPlusLC:Print("Music enabled.")
-                        else
-                            LeaPlusLC:Print("Music disabled.")
-                        end
-                    else
-                        if LeaPlusLC["PageF"]:IsShown() then
-                            LeaPlusLC:HideFrames();
-                        else
-                            LeaPlusLC:HideFrames();
-                            LeaPlusLC["PageF"]:Show();
-                        end
-                        if LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]] and LeaPlusLC["OpenPlusAtHome"] == "Off" then
-                             LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]]:Show()
-                        else
-                            LeaPlusLC["Page0"]:Show();
-                        end
                     end
-                end
 
 			end
 
@@ -1666,9 +1636,9 @@
 				end,
 				OnTooltipShow = function(tooltip)
 					if not tooltip or not tooltip.AddLine then return end
-					tooltip:AddLine("Leatrix Plus")
-					tooltip:AddLine("|cffeda55fClick|r to open Leatrix Plus options.")
-                    tooltip:AddLine("|cffeda55fShift-Click|r to reload the user interface.")
+					tooltip:AddLine("Leatrix Plus")	
+					tooltip:AddLine("|cffeda55fClick|r |cff99ff00to open Leatrix Plus options.|r")
+                    tooltip:AddLine("|cffeda55fRight-Click|r |cff99ff00to reload the user interface.|r")
 				end,
 			})
 
@@ -3261,12 +3231,19 @@ end
 		----------------------------------------------------------------------
 
 if LeaPlusLC["FasterLooting"] == "On" then
-	local addonName = ...
-	local AutoLoot = CreateFrame("Frame")
-	local Settings = {}
+	--------------------------------------------------------------------------------
+	-- Code taken, and modified by Sattva.
+	-- Source code is from SpeedyAutoLoot addon.
+	-- Increase speed of looting singnificantly. Makes the feel of it better.
+	-- The main approach is to not load the looting window, when is not needed.
+	-- It was initially made for my WeakAura https://wago.io/uGLs2fARD
+	--------------------------------------------------------------------------------
 
-	local SetCVar = SetCVar or C_CVar.SetCVar
-	local GetCVarBool = GetCVarBool or C_CVar.GetCVarBool
+
+	local AutoLoot = CreateFrame("Frame")
+	-- local aura_env = aura_env or {}
+
+	local SetCVar = SetCVar
 	local BACKPACK_CONTAINER, LOOT_SLOT_ITEM, NUM_BAG_SLOTS = BACKPACK_CONTAINER, LOOT_SLOT_ITEM, NUM_BAG_SLOTS
 	local GetContainerNumFreeSlots = GetContainerNumFreeSlots
 	local GetCursorPosition = GetCursorPosition
@@ -3274,238 +3251,478 @@ if LeaPlusLC["FasterLooting"] == "On" then
 	local GetItemInfo = GetItemInfo
 	local GetLootSlotInfo = GetLootSlotInfo
 	local GetLootSlotLink = GetLootSlotLink
-	local GetLootSlotType = GetLootSlotType
 	local GetNumLootItems = GetNumLootItems
-	local IsFishingLoot = IsFishingLoot
 	local IsModifiedClick = IsModifiedClick
 	local LootSlot = LootSlot
-	-- local PlaySound = PlaySound
 	local band = bit.band
 	local select = select
 	local tContains = tContains
+	_G.ElvLootFrame = ElvLootFrame
+	_G.ElvLootFrameHolder = ElvLootFrameHolder
+	local slotType = slotType
+	local invFullSoundPlayed = false
+
+	--===== Check for if 3.3.5 or 2.4.3 game client. =====--
+	local isTBC = select(4, GetBuildInfo()) == 20400 -- true if TBC 2.4.3
+	local isWOTLK = select(4, GetBuildInfo()) == 30300 -- true if WOTLK 3.3.5
+
+	--===== WA Custom Options - Sound database  =====--
+	local soundFiles = {
+	    [1] = "Sound/Interface/Pickup/putDownRocks_Ore01.wav",
+	    [2] = "sound/character/gnome/gnomemaleerrormessages/gnomemale_err_inventoryfull01.wav",
+	    [3] = "sound/character/dwarf/dwarfmaleerrormessages/dwarfmale_err_inventoryfull02.wav",
+	    -- Add more sound file paths if needed
+	}
+
+
+	-----------------------------------------------------------------
+	-- Function checks for if player has free bag slots, 
+	-- If not then checks if looted item can fit in existing stacks.
+	-----------------------------------------------------------------
 
 	function AutoLoot:ProcessLoot(item, q)
-		local total, free, bagFamily = 0
-		local itemFamily = GetItemFamily(item)
-		for i = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
-			free, bagFamily = GetContainerNumFreeSlots(i)
-			if (not bagFamily or bagFamily == 0) or (itemFamily and band(itemFamily, bagFamily) > 0) then
-				total = total + free
-			end
-		end
-		if total > 0 then
-			return true
-		end
 
-		local have = (GetItemCount(item) or 0)
-		if have > 0 then
-			local itemStackCount = (select(8,GetItemInfo(item)) or 0)
-			if itemStackCount > 1 then
-				while have > itemStackCount do
-					have = have - itemStackCount
-				end
-				local remain = itemStackCount - have
-				if remain >= q then
-					return true
-				end
-			end
-		end
-		return false
+	    local total, free, bagFamily = 0
+	    local itemFamily = GetItemFamily(item)
+
+	    for i = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+
+	        free, bagFamily = GetContainerNumFreeSlots(i)
+
+	        if (not bagFamily or bagFamily == 0) or (itemFamily and band(itemFamily, bagFamily) > 0) then
+
+	            total = total + free
+
+	        end
+
+	    end
+
+	    if total > 0 then
+
+	        return true
+
+	    end
+	    
+	    local have = (GetItemCount(item) or 0)
+	    if have > 0 then
+
+	        local itemStackCount = (select(8,GetItemInfo(item)) or 0)
+	        if itemStackCount > 1 then
+
+	            while have > itemStackCount do
+
+	                have = have - itemStackCount
+
+	            end
+
+	            local remain = itemStackCount - have
+	            if remain >= q then
+
+	                return true
+
+	            end
+
+	        end
+
+	    end
+
+	    return false
+
 	end
+
+	--------------------------------------------------------------------------------
+	-- Function checks and helps to handle (show, hide) ElvUI looting frame.
+	-- It also helps to handle default looting frame.
+	--------------------------------------------------------------------------------
+
 
 	function AutoLoot:ShowLootFrame(show)
-		if self.ElvUI then
-			if show then
-				ElvLootFrame:SetParent(ElvLootFrameHolder)
-				ElvLootFrame:SetFrameStrata("HIGH")
-				self:LootUnderMouse(ElvLootFrame, ElvLootFrameHolder, 20)
-				self.isHidden = false
-			else
-				ElvLootFrame:SetParent(self)
-				self.isHidden = true
-			end
-		elseif LootFrame:IsEventRegistered("LOOT_SLOT_CLEARED") then
-			LootFrame.page = 1;
-			if show then
-				LootFrame_Show(LootFrame)
-				self.isHidden = false
-			else
-				self.isHidden = true
-			end
-		end
+	    -- print("ShowLootFrame: Show: " .. tostring(show))
+
+	    if IsAddOnLoaded("ElvUI") then
+	        -- print("ShowLootFrame: ElvUI loaded")
+	        if show then
+	            -- print("ShowLootFrame: Show ElvLootFrame")
+	            ElvLootFrame:SetParent(ElvLootFrameHolder)
+	            ElvLootFrame:SetFrameStrata("HIGH")
+	            self:LootUnderMouse(ElvLootFrame, ElvLootFrameHolder, 20)
+	            self.isHidden = false
+	        else
+	            -- print("ShowLootFrame: Hide ElvLootFrame")
+	            ElvLootFrame:SetParent(self)
+	            self.isHidden = true
+	        end
+	    elseif LootFrame:IsEventRegistered("LOOT_SLOT_CLEARED") then
+	        -- print("ShowLootFrame: Default UI loot frame")
+	        LootFrame.page = 1;
+	        if show then
+	            if isWOTLK then
+	                LootFrame_Show(LootFrame) 
+	            elseif isTBC then
+	                ShowUIPanel(LootFrame)
+	            end
+	            self.isHidden = false
+	        else
+	            -- HideUIPanel(LootFrame)
+	            self.isHidden = true
+	        end
+	    else
+	        -- print("ShowLootFrame: No valid loot frames")
+	        self.isHidden = true
+	    end
+	    -- print("ShowLootFrame: Done")
 	end
+
+
+
+
+	----------------------------------------------------------------------------------------------------
+	-- Function to automate looting items, before looting it checks for if item is being master looted.
+	----------------------------------------------------------------------------------------------------
+
+
 
 	function AutoLoot:LootItems(numItems)
-		local lootThreshold = (self.isClassic and select(2,GetLootMethod()) == 0) and GetLootThreshold() or 10
-		for i = numItems, 1, -1 do
-			local itemLink = GetLootSlotLink(i)
-	--		-- local slotType = GetLootSlotType(i)
-			local quantity, _, quality, locked, isQuestItem = select(3, GetLootSlotInfo(i))
-			if locked or (quality and quality >= lootThreshold) then
-				self.isItemLocked = true
-			else
-				if slotType ~= LOOT_SLOT_ITEM or (not self.isClassic and isQuestItem) or self:ProcessLoot(itemLink, quantity) then
-					numItems = numItems - 1
-					LootSlot(i)
-				end
-			end
-		end
-		if numItems > 0 then
-			self:ShowLootFrame(true)
-			-- self:PlayInventoryFullSound()
-		end
 
-		-- if IsFishingLoot() and not Settings.global.fishingSoundDisabled then
-		-- 	PlaySound(SOUNDKIT.FISHING_REEL_IN, self.audioChannel)
-		-- end
+	    local lootThreshold = (self.isClassic and select(2,GetLootMethod()) == 0) and GetLootThreshold() or 10
+	    for i = numItems, 1, -1 do
+
+	        local itemLink = GetLootSlotLink(i)
+	        local _, _, lootQuantity, rarity, locked = GetLootSlotInfo(i)
+	        -- print("itemLink: ", itemLink, "quantity: ", lootQuantity, "quality: ", rarity, "locked: ", locked)
+
+	        if locked or (rarity and rarity >= lootThreshold) then
+
+	            -- print("item is locked")
+	            self.isItemLocked = true
+
+	        else
+
+	            --===== FIX ME =====--
+	            --===== not sure why there is slotType ~= LOOT_SLOT_ITEM, its not defined =====--
+	            if slotType ~= LOOT_SLOT_ITEM or self:ProcessLoot(itemLink, lootQuantity) then
+	                -- print("It's working!")
+
+	                numItems = numItems - 1
+	                LootSlot(i)
+
+	            end
+	        end
+	    end
+
+	    if numItems > 0 then
+
+	        self:ShowLootFrame(true)
+
+	    end
+
 	end
+
+
+	--------------------------------------------------------------------------------
+	-- Function to filter error messages
+	--------------------------------------------------------------------------------
+
+
+	-- if aura_env.config["error_filter"] then
+
+	    local AutoLootErrScript = UIErrorsFrame:GetScript('OnEvent')
+
+	    -- Error message events
+	    UIErrorsFrame:SetScript('OnEvent', function (self, event, AutoLootError, ...)
+
+	        -- Handle error messages
+	        if event == "UI_ERROR_MESSAGE" then
+
+	            -- if aura_env.config["error_filter"] then
+
+	                if  AutoLootError == ERR_LOOT_GONE or
+	                    AutoLootError == ERR_LOOT_DIDNT_KILL or
+	                    AutoLootError == ERR_NO_LOOT then
+
+	                    return -- hide the error message
+
+	                end
+
+	            -- else
+
+	            --     return -- hide the error message
+
+	            -- end
+	        end
+
+	        return AutoLootErrScript(self, event, AutoLootError, ...)
+
+	    end)
+
+	-- end
+
+
+	-------------------------------------------------------------------------------------
+	-- Function to handle all events related to looting.
+	-- Such as opening/closing loot windows and checking for inventory space.
+	--------------------------------------------------------------------------------
+
+
 
 	function AutoLoot:OnEvent(e, ...)
-		-- if e == "ADDON_LOADED" and ... == addonName then
-		-- 	SpeedyAutoLootDB = SpeedyAutoLootDB or {}
-		-- 	Settings = SpeedyAutoLootDB
-		-- 	Settings.global = Settings.global or {}
-	    if e == "PLAYER_LOGIN" then
-			SetCVar("autoLootDefault",1)
 
-		elseif (e == "LOOT_READY" or e == "LOOT_OPENED") and not self.isLooting then
-			local aL = ...
+	    --===== Loot functions are called here =====--
+	    if (e == "LOOT_READY" or e == "LOOT_OPENED") and not self.isLooting then
 
-			local numItems = GetNumLootItems()
-			if numItems == 0 then
-				return
-			end
+	        local numItems = GetNumLootItems()
 
-			self.isLooting = true
-			-- if aL or (aL == nil and GetCVarBool("autoLootDefault") ~= IsModifiedClick("AUTOLOOTTOGGLE")) then
-			if not IsModifiedClick("AUTOLOOTTOGGLE") then
-				self:LootItems(numItems)
-				-- print("loot")
-			else
-				self:ShowLootFrame(true)
-				-- print("show")
-			end
-		elseif e == "LOOT_CLOSED" then
-			self.isLooting = false
-			self.isHidden = false
-			self.isItemLocked = false
-			self:ShowLootFrame(false)
-		elseif (e == "UI_ERROR_MESSAGE" and tContains(({ERR_INV_FULL,ERR_ITEM_MAX_COUNT}), select(2,...))) or e == "LOOT_BIND_CONFIRM" then
-			if self.isLooting and self.isHidden then
-				self:ShowLootFrame(true)
-				-- if e == "UI_ERROR_MESSAGE" then
-				-- 	self:PlayInventoryFullSound()
-				-- end
-			end
-		end
+
+	        --===== if nothing to loot, stop script =====--
+	        if numItems == 0 then
+
+	            return
+
+	        end
+	        
+	        self.isLooting = true
+	        self.isHidden = true
+
+
+	        --===== Checks for if modifier is held and stops looting if given errors are fired, to avoid looping when it's not needed  =====--
+	        if not IsModifiedClick("AUTOLOOTTOGGLE") and not tContains(({ERR_INV_FULL, ERR_ITEM_MAX_COUNT, ERR_LOOT_ROLL_PENDING}), select(1, ...)) then
+
+	            self:LootItems(numItems)
+	            -- print("loot")
+
+	        else
+
+	            self:ShowLootFrame(true)
+	            -- print("show")
+
+	        end
+
+	    elseif e == "LOOT_CLOSED" then
+
+	        self.isLooting = false
+	        self.isHidden = false
+	        self.isItemLocked = false
+	        self:ShowLootFrame(false)
+	        invFullSoundPlayed = false
+
+
+	    --===== If inventory is full or you have too many of items, show loot frame and play sound. =====--
+	    elseif tContains(({ERR_INV_FULL, ERR_ITEM_MAX_COUNT}), select(1, ...)) then
+	        if not invFullSoundPlayed and self.isLooting then
+
+	            AutoLoot:OnInvFull()
+	            invFullSoundPlayed = true
+
+	        end
+
+	    --===== If item being rolled for (Group Loot), show loot frame. =====--
+	    elseif tContains(({ERR_LOOT_ROLL_PENDING}), select(1, ...)) then
+
+	        if self.isLooting then
+
+	            self:ShowLootFrame(true)
+	            -- print("pickup")
+
+	        end
+
+
+	    elseif e == "LOOT_BIND_CONFIRM" then
+
+	        if self.isLooting and self.isHidden then
+
+	            AutoLoot:OnBindConfirm()
+
+	        end
+
+	    elseif e == "OPEN_MASTER_LOOT_LIST" then
+
+	        if self.isLooting and self.isHidden then
+
+	            self:ShowLootFrame(true);
+	            -- print("master loot")
+
+	        end
+
+	    -- elseif e == "PLAYER_LOGIN" or e == "ADDON_LOADED" and aura_env.config["autoLootGlobalEnabled"] then
+	    elseif e == "PLAYER_LOGIN" or e == "ADDON_LOADED" then
+
+	        if isTBC then
+
+	            SetCVar("autoLootCorpse",1)
+
+	        elseif isWOTLK then
+
+	            SetCVar("autoLootDefault",1)
+
+	        end
+
+
+	        --===== Disable Auto Loot button in Interface menu and add tooltip to it. =====-- 
+	        -- if aura_env.config["autoLootGlobalEnabled"] then
+
+	            InterfaceOptionsControlsPanelAutoLootCorpse:Disable()
+
+	            local autoLootText = InterfaceOptionsControlsPanelAutoLootCorpseText
+	            autoLootText:SetText("Auto Loot option is controlled by Leatrix Plus.")
+	            autoLootText:SetAlpha(0.6)
+
+	            -- print("Auto Loot Set") 
+
+	        -- else
+
+	        --     InterfaceOptionsControlsPanelAutoLootCorpse:Enable()
+
+	        -- end 
+
+
+	    end
+
 	end
 
-	-- function AutoLoot:PlayInventoryFullSound()
-	-- 	if Settings.global.enableSound and not self.isItemLocked then
-	-- 		PlaySound(Settings.global.InventoryFullSound, self.audioChannel)
-	-- 	end
-	-- end
 
-	function AutoLoot:LootUnderMouse(self, parent, yoffset)
-		if GetCVarBool("lootUnderMouse") then
-			local x, y = GetCursorPosition()
-			x = x / self:GetEffectiveScale()
-			y = y / self:GetEffectiveScale()
+	--------------------------------------------------------------------------------
+	-- Inventory Full Function
+	--------------------------------------------------------------------------------
 
-			self:ClearAllPoints()
-			self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x - 40, y + (yoffset or 20))
-			self:GetCenter()
-			self:Raise()
-		else
-			self:ClearAllPoints()
-			self:SetPoint("TOPLEFT", parent, "TOPLEFT")
-		end
+
+	function AutoLoot:OnInvFull()
+
+	    -- local soundIndex = aura_env.config["full_inventory_sound"]
+	    local soundIndex = 1
+	    if soundIndex == 1 then
+
+	        local soundPath = soundFiles[soundIndex]
+	        PlaySoundFile(soundPath, "Sound")
+
+	    -- elseif (soundIndex == 2 or soundIndex == 3) and (not aura_env.lastPlayTime or (GetTime() - aura_env.lastPlayTime) >= 1.5) then
+
+	    --     aura_env.lastPlayTime = GetTime()
+	    --     local soundPath = soundFiles[soundIndex]
+	    --     PlaySoundFile(soundPath, "Sound")
+
+	    end
+
+	    self:ShowLootFrame(true)
+	    -- print("inv full")
+
 	end
 
-	-- function AutoLoot:Help(msg)
-	-- 	local fName = "|cffEEE4AESpeedy AutoLoot:|r "
-	-- 	local _, _, cmd, args = string.find(msg, "%s?(%w+)%s?(.*)")
-	-- 	if not cmd or cmd == "" or cmd == "help" then
-	-- 		print(fName.."   |cff58C6FA/sal    /speedyautoloot    /speedyloot|r")
-	-- 		print("  |cff58C6FA/sal auto              -|r  |cffEEE4AEEnable Auto Looting for all characters|r")
-	-- 		print("  |cff58C6FA/sal fish              -|r  |cffEEE4AEDisable Fishing reel in sound|r")
-	-- 		print("  |cff58C6FA/sal sound            -|r  |cffEEE4AEPlay a Sound when Inventory is full while looting|r")
-	-- 		if self.isClassic then
-	-- 			print("  |cff58C6FA/sal set (SoundID) -|r  |cffEEE4AESet a Sound (SoundID), Default:  /sal set 139|r")
-	-- 		else
-	-- 			print("  |cff58C6FA/sal set (SoundID) -|r  |cffEEE4AESet a Sound (SoundID), Default:  /sal set 44321|r")
-	-- 		end
-	-- 	elseif cmd == "fish" then
-	-- 		if not Settings.global.fishingSoundDisabled then
-	-- 			Settings.global.fishingSoundDisabled = true
-	-- 			print(fName.."|cffB6B6B6Fishing reel in sound disabled.")
-	-- 		else
-	-- 			Settings.global.fishingSoundDisabled = false
-	-- 			print(fName.."|cff37DB33Fishing reel in sound enabled.")
-	-- 		end
-	-- 	elseif cmd == "auto" then
-	-- 		if Settings.global.alwaysEnableAutoLoot then
-	-- 			Settings.global.alwaysEnableAutoLoot = false
-	-- 			print(fName.."|cffB6B6B6Auto Loot for all Characters disabled.")
-	-- 			SetCVar("autoLootDefault",0)
-	-- 		else
-	-- 			Settings.global.alwaysEnableAutoLoot = true
-	-- 			print(fName.."|cff37DB33Auto Loot for all Characters enabled.")
-	-- 			SetCVar("autoLootDefault",1)
-	-- 		end
-	-- 	elseif cmd == "sound" then
-	-- 		if Settings.global.enableSound then
-	-- 			Settings.global.enableSound = false
-	-- 			print(fName.."|cffB6B6B6Don't play a sound when inventory is full.")
-	-- 		else
-	-- 			if not Settings.global.InventoryFullSound then
-	-- 				if self.isClassic then
-	-- 					Settings.global.InventoryFullSound = 139
-	-- 				else
-	-- 					Settings.global.InventoryFullSound = 44321
-	-- 				end
-	-- 			end
-	-- 			Settings.global.enableSound = true
-	-- 			print(fName.."|cff37DB33Play a sound when inventory is full.")
-	-- 		end
-	-- 	elseif cmd == "set" and args ~= "" then
-	-- 		local SoundID = tonumber(args:match("%d+"))
-	-- 		if SoundID then
-	-- 			Settings.global.InventoryFullSound = tonumber(args:match("%d+"))
-	-- 			PlaySound(SoundID, self.audioChannel)
-	-- 			print(fName.."Set Sound|r |cff37DB33"..SoundID.."|r")
-	-- 		end
-	-- 	end
-	-- end
+
+	--------------------------------------------------------------------------------
+	-- Bind confirm Function
+	--------------------------------------------------------------------------------
+
+	function AutoLoot:OnBindConfirm(slot)
+
+	    if self.isLooting then
+
+	        self:ShowLootFrame(true);
+	        -- print("bind confirm")
+
+	    end
+
+	end
+
+
+	--------------------------------------------------------------------------------
+	-- Function to make sure the Looting Window is positioned well, when shown.
+	--------------------------------------------------------------------------------
+
+
+
+	function AutoLoot:LootUnderMouse(frame, parent, yoffset)
+	    if ( GetCVar("lootUnderMouse") == "1" ) then
+	        local x, y = GetCursorPosition()
+	        x = x / frame:GetEffectiveScale()
+	        y = y / frame:GetEffectiveScale()
+
+	        frame:ClearAllPoints()
+	        frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x - 40, y + (yoffset or 20))
+	        frame:GetCenter()
+	        frame:Raise()
+
+	        -- print("Loot under mouse enabled. Positioning frame under cursor.")
+
+	    else
+	        frame:ClearAllPoints()
+	        frame:SetPoint("TOPLEFT", parent, "TOPLEFT")
+
+	        -- print("Loot under mouse disabled. Positioning frame at top-left of parent.")
+	    end
+	end
+
+
+
+	--------------------------------------------------------------------------------
+	-- Function to setup events.
+	--------------------------------------------------------------------------------
+
 
 	function AutoLoot:OnLoad()
-		self:SetToplevel(true)
-		self:Hide()
-		self:SetScript("OnEvent", function(_,...)
-			self:OnEvent(...)
-		end)
 
-		for _,e in next, ({	"ADDON_LOADED", "PLAYER_LOGIN", "LOOT_READY", "LOOT_OPENED", "LOOT_CLOSED", "UI_ERROR_MESSAGE" }) do
-			self:RegisterEvent(e)
-		end
+	    -- if (aura_env.config["errorFaster"] or aura_env.config["error_tiny"])  then    
 
-		self.audioChannel = "master"
-		self.isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+	        --===== Function to make error frame fade out animation faster. =====--
+	        -- if aura_env.config["errorFaster"] then
 
-		if self.isClassic then
+	                    UIErrorsFrame:SetTimeVisible(1)
+
+	        -- end  
+
+
+	        --===== Function to make error frame contain only 1 line =====--
+	        --===== It also checks if frame is not already 1 line, to make sure error frame doesnt get hidden fully. =====--
+	        local errorFrameHeight = 20
+	        -- if aura_env.config["error_tiny"] then
+
+	            if UIErrorsFrame:GetHeight() ~= errorFrameHeight then
+
+	                UIErrorsFrame:SetHeight(errorFrameHeight)
+
+	            end
+
+	        -- end   
+
+	    -- end     
+
+
+	    self:SetToplevel(true)
+	    self:Hide()
+
+	    --===== Function sets the OnEvent script for the AutoLoot frame to call the self:OnEvent(...) function. =====--
+	    --===== Whenever an event is detected by the addon. =====--
+	    self:SetScript("OnEvent", function(_,...)
+
+	        self:OnEvent(...)
+
+	    end)
+	    
+
+	    for _,e in next, ({    "ADDON_LOADED", "PLAYER_LOGIN", "LOOT_READY", "LOOT_OPENED", "LOOT_CLOSED", "UI_ERROR_MESSAGE", "CVAR_UPDATE", "LOOT_BIND_CONFIRM", "OPEN_MASTER_LOOT_LIST"}) do
+
+	        self:RegisterEvent(e)
+
+	    end
+
+	    
+	    -- I did not change this for 2.4.3 and 3.3.5, it's working, so i let it be "Classic" :D
+	    self.isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+	    
+	    if self.isClassic then
+
+	        -- print("classic")
 	        self:RegisterEvent("LOOT_BIND_CONFIRM")
 	        self:RegisterEvent("OPEN_MASTER_LOOT_LIST")
-		end
 
-		LootFrame:UnregisterEvent('LOOT_OPENED')
+	    end
+	    
+	    LootFrame:UnregisterEvent('LOOT_OPENED')
+
 	end
 
-	-- SLASH_SPEEDYAUTOLOOT1, SLASH_SPEEDYAUTOLOOT2, SLASH_SPEEDYAUTOLOOT3  = "/sal", "/speedyloot", "/speedyautoloot"
-	-- SlashCmdList["SPEEDYAUTOLOOT"] = function(...)
-	--     AutoLoot:Help(...)
-	-- end
-
 	AutoLoot:OnLoad()
+
+
 end
 
 		----------------------------------------------------------------------
