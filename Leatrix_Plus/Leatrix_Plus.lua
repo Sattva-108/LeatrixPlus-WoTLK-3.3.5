@@ -3592,7 +3592,8 @@ if LeaPlusLC["FasterLooting"] == "On" then
 	    if soundIndex == 1 then
 
 	        local soundPath = soundFiles[soundIndex]
-	        PlaySoundFile(soundPath, "Sound")
+			-- comment it because there is no config in this LTP addon version to configure sound
+	        --PlaySoundFile(soundPath, "Sound")
 
 	    -- elseif (soundIndex == 2 or soundIndex == 3) and (not aura_env.lastPlayTime or (GetTime() - aura_env.lastPlayTime) >= 1.5) then
 
