@@ -4,7 +4,7 @@
 ![wow_xukKHAS2Zd](https://user-images.githubusercontent.com/74269253/229242852-74c7fd25-427a-4a6e-a573-3d0972b937de.png)
 
 ## Support
-- Support my development on **[Boosty](https://boosty.to/sattva108)**
+- Show **Love and Support** my goals **[Boosty](https://boosty.to/sattva108)**
 
 ## Credit
 - Credit to [leatrix](https://github.com/leatrix/leatrix)    
